@@ -123,58 +123,52 @@ class Processor:
         print('MOV', operands)
 
     def add(self, operands):
-        if len(operands) != 3:
-            print("Error: ADD instruction requires three operands")
+        if len(operands) != 2:
+            print("Error: ADD instruction requires two operands")
             return
 
-        destination = operands[0]
-        operand1 = self.get_operand_value(operands[1])
-        operand2 = self.get_operand_value(operands[2])
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
 
         result = operand1 + operand2
 
-        self.store_result(destination, result)
+        self.store_result(operands[0], result)
 
         print('ADD', operands)
 
     def sub(self, operands):
-        if len(operands) != 3:
-            print("Error: SUB instruction requires three operands")
+        if len(operands) != 2:
+            print("Error: SUB instruction requires two operands")
             return
 
-        destination = operands[0]
-        operand1 = self.get_operand_value(operands[1])
-        operand2 = self.get_operand_value(operands[2])
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
 
         result = operand1 - operand2
 
-        self.store_result(destination, result)
-
+        self.store_result(operands[0], result)
         print('SUB', operands)
 
     def mul(self, operands):
-        if len(operands) != 3:
-            print("Error: MUL instruction requires three operands")
+        if len(operands) != 2:
+            print("Error: MUL instruction requires two operands")
             return
 
-        destination = operands[0]
-        operand1 = self.get_operand_value(operands[1])
-        operand2 = self.get_operand_value(operands[2])
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
 
         result = operand1 * operand2
 
-        self.store_result(destination, result)
-
+        self.store_result(operands[0], result)
         print('MUL', operands)
 
     def div(self, operands):
-        if len(operands) != 3:
-            print("Error: DIV instruction requires three operands")
+        if len(operands) != 2:
+            print("Error: DIV instruction requires two operands")
             return
 
-        destination = operands[0]
-        operand1 = self.get_operand_value(operands[1])
-        operand2 = self.get_operand_value(operands[2])
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
 
         if operand2 != 0:
             result = operand1 // operand2
@@ -182,8 +176,7 @@ class Processor:
             print("Error: Division by zero")
             return
 
-        self.store_result(destination, result)
-
+        self.store_result(operands[0], result)
         print('DIV', operands)
 
     def cmp(self, operands):
