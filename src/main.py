@@ -57,5 +57,17 @@ from Processor import Processor
 from Memory import Memory
 from PeripheralDevice import PeripheralDevice
 
-program = Processor()
+def read_config_file(file_name):
+    with open(file_name) as file:
+        lines = file.readlines()
+        config = {}
+        for line in lines:
+            key, value = line.split(":")
+            config[key.strip()] = int(value.strip())
+        return config
+
+config = read_config_file('config.cfg')
+
+memory = Memory(config['instruction_memory_size'], config['data_memory_size'])
+program = Processor(memory)
 program.execute_program('asm-example-file.txt')

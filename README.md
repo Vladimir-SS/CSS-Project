@@ -13,8 +13,7 @@ self.flags = {
 ```
 
 - `Program Counter (PC)`: Points to the next instruction to execute.
-
-- `Stack Pointer (SP)`: Points to the current top of the stack in memory, used for push/pop operations.
+- `Stack Pointer (SP)`: Points to the current top of the stack in memory, used for push/pop operations. More about [stack in assembly](https://www.cs.ubbcluj.ro/~vancea/asc/stack_in_assembly.php)
 
 ## Main classes
 

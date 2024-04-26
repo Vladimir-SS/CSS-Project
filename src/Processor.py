@@ -1,5 +1,5 @@
 class Processor:
-    def __init__(self):
+    def __init__(self, memory):
         self.data_registers = [0 for _ in range(8)]
         self.flags = {
             'CF': False,  # Carry Flag: is set when an arithmetic operation generates a carry or borrows from the most significant bit; used in testing for overflow in signed integer arithmetic
@@ -8,10 +8,11 @@ class Processor:
             'SF': False,  # Sign Flag: holds the value of the most significant bit of the result; indicates the sign of a signed integer (0 = positive, 1 = negative)
             'OF': False   # Overflow Flag: is set when an overflow occurs in signed integer arithmetic
         }
-        self.stack = []
+        # Special-purpose registers
         self.program_counter = None
-        self.instructions = []
-        self.labels = {}
+        self.stack_pointer = []
+        self.memory = memory # Memory "pointer" - used to access memory without overcomplicating the memory class by making it static
+
         self.instruction_types = {
         # Assignment
             'MOV': self.mov,
@@ -46,6 +47,8 @@ class Processor:
         }
 
     def execute_instruction(self, instruction):
+        if instruction is None: # Skip labels
+            return
         instruction_type, operands = instruction
         self.instruction_types[instruction_type](operands)
 
@@ -55,11 +58,8 @@ class Processor:
         if self.program_counter is None:
             self.program_counter = 0
 
-        while self.program_counter < len(self.instructions):
-            self.execute_instruction(self.instructions[self.program_counter])
-            if self.program_counter is None or self.program_counter < 0 or self.program_counter >= len(self.instructions):
-                print('Program counter out of bounds, probably a jump instruction or a return instruction that went out of bounds. Exiting program.')
-                break
+        while self.memory.check_instruction_memory_address(self.program_counter):
+            self.execute_instruction(self.memory.get_instruction(self.program_counter))
             self.program_counter += 1
 
     def parse_instruction(self, instruction):
@@ -74,14 +74,35 @@ class Processor:
 
         if opcode in self.instruction_types:
             operands = [operand.replace(',', '') for operand in instruction_parts[1:]]
-            self.instructions.append((opcode, operands))
+            self.memory.add_instruction((opcode, operands))
         elif opcode.endswith(':'):
-            self.labels[opcode[:-1]] = len(self.instructions) - 1
+            self.memory.add_instruction(None, opcode[:-1])
 
     def parse_file(self, file_name):
         with open(file_name, 'r') as file:
             for line in file:
                 self.parse_instruction(line.strip())
+
+    def parse_memory_operand(self, operand):
+        """
+        Parse a memory operand to determine if the address is specified by a constant value or by a data register.
+
+        Parameters:
+        - operand (str): The memory operand string.
+
+        Returns:
+        - int: The memory address.
+        """
+        if operand.startswith('M'):
+            if operand[1:].startswith('R'):
+                # Address specified by a data register
+                register_index = int(operand[2:])
+                return self.data_registers[register_index]
+            else:
+                # Address specified by a constant value
+                return int(operand[1:])
+        else:
+            raise ValueError("Invalid memory operand format")
 
     def get_operand_value(self, operand):
         if operand.startswith('R'):
@@ -89,6 +110,9 @@ class Processor:
             return self.data_registers[register_index]
         elif operand.startswith('#'):
             return int(operand[1:])
+        elif operand.startswith('M'):
+            address = self.parse_memory_operand(operand)
+            return self.memory.get_data(address)
         else:
             print("Error: Unsupported operand type")
             return 0  # Return a default value if unsupported
@@ -104,19 +128,27 @@ class Processor:
         if len(operands) != 2:
             print("Error: MOV instruction requires two operands")
             return
+
         destination = operands[0]
         source = operands[1]
 
-        # Handle different operand types: data registers, memory locations, constant values
+        # Extract source operand value
+        if source.startswith('#'):
+            source = int(source[1:])
+        elif source.startswith('R'):
+            source = self.data_registers[int(source[1:])]
+        elif source.startswith('M'):
+            source = self.memory.get_data(self.parse_memory_operand(source))
+        else:
+            print("Error: Unsupported source operand")
+            return
+
+        # Handle different destination operand types: data registers, memory locations
         if destination.startswith('R'):
-            dest_register = int(destination[1:])  # Extract register number
-            if source.startswith('#'):
-                self.data_registers[dest_register] = int(source[1:])
-            elif source.startswith('R'):
-                source_register = int(source[1:])
-                self.data_registers[dest_register] = self.data_registers[source_register]
-            else:
-                print("Error: Unsupported source operand")
+            dest_register = int(destination[1:])
+            self.data_registers[dest_register] = source
+        elif destination.startswith('M'):
+            self.memory.set_data(self.parse_memory_operand(destination), source)
         else:
             print("Error: Unsupported destination operand")
 
@@ -200,7 +232,7 @@ class Processor:
             return
 
         if operands:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JMP', operands)
 
@@ -210,7 +242,7 @@ class Processor:
             return
 
         if self.flags['ZF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JE', operands)
 
@@ -220,7 +252,7 @@ class Processor:
             return
 
         if not self.flags['ZF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JNE', operands)
 
@@ -230,7 +262,7 @@ class Processor:
             return
 
         if not self.flags['ZF'] and self.flags['SF'] == self.flags['OF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JG', operands)
 
@@ -240,7 +272,7 @@ class Processor:
             return
 
         if self.flags['SF'] and not self.flags['ZF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
         print('JL', operands)
 
     def jge(self, operands):
@@ -249,7 +281,7 @@ class Processor:
             return
 
         if self.flags['SF'] == self.flags['ZF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JGE', operands)
 
@@ -259,7 +291,7 @@ class Processor:
             return
 
         if self.flags['ZF'] or self.flags['SF'] != self.flags['OF']:
-            self.program_counter = self.labels[operands[0]]
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('JLE', operands)
 
@@ -269,7 +301,7 @@ class Processor:
             return
 
         if operands:
-            self.stack.append(operands[0])
+            self.stack_pointer.append(operands[0])
 
         print('PUSH', operands)
 
@@ -279,7 +311,7 @@ class Processor:
             return
 
         if operands:
-            self.stack.pop()
+            self.stack_pointer.pop()
 
         print('POP', operands)
 
@@ -289,32 +321,77 @@ class Processor:
             return
 
         if operands:
-            self.stack.append(operands[0])
+            self.stack_pointer.append(operands[0])
 
         print('CALL', operands)
 
     def ret(self, operands):
         if operands:
-            self.program_counter = self.stack.pop()
+            self.program_counter = self.stack_pointer.pop()
 
         print('RET', operands)
 
-    # Not implemented:
-
     def not_op(self, operands):
+        if len(operands) != 1:
+            print("Error: NOT instruction requires one operand")
+            return
+
+        operand = self.get_operand_value(operands[0])
+        result = ~operand & 0xFFFFFFFF
+        self.store_result(operands[0], result)
         print('NOT', operands)
 
     def and_op(self, operands):
+        if len(operands) != 2:
+            print("Error: AND instruction requires two operands")
+            return
+
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
+        result = operand1 & operand2
+        self.store_result(operands[0], result)
         print('AND', operands)
 
     def or_op(self, operands):
+        if len(operands) != 2:
+            print("Error: OR instruction requires two operands")
+            return
+
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
+        result = operand1 | operand2
+        self.store_result(operands[0], result)
         print('OR', operands)
 
     def xor_op(self, operands):
+        if len(operands) != 2:
+            print("Error: XOR instruction requires two operands")
+            return
+
+        operand1 = self.get_operand_value(operands[0])
+        operand2 = self.get_operand_value(operands[1])
+        result = operand1 ^ operand2
+        self.store_result(operands[0], result)
         print('XOR', operands)
 
     def shl(self, operands):
+        if len(operands) != 2:
+            print("Error: SHL instruction requires two operands")
+            return
+
+        operand = self.get_operand_value(operands[0])
+        shift_amount = self.get_operand_value(operands[1])
+        result = operand << shift_amount
+        self.store_result(operands[0], result)
         print('SHL', operands)
 
     def shr(self, operands):
+        if len(operands) != 2:
+            print("Error: SHR instruction requires two operands")
+            return
+
+        operand = self.get_operand_value(operands[0])
+        shift_amount = self.get_operand_value(operands[1])
+        result = operand >> shift_amount  # Performing bitwise right shift operation
+        self.store_result(operands[0], result)
         print('SHR', operands)
