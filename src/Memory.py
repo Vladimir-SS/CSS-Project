@@ -4,7 +4,7 @@ class Memory:
     MAX_MEMORY_SIZE = 65536  # Maximum memory size in bytes
     MIN_MEMORY_SIZE = 1024   # Minimum memory size in bytes
 
-    def __init__(self, instruction_memory_size, data_memory_size):
+    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer, video_memory_start):
         self.validate_memory_size(instruction_memory_size)
         self.validate_memory_size(data_memory_size)
 
@@ -15,19 +15,35 @@ class Memory:
         self.data_memory = [None] * data_memory_size
 
         # Peripheral devices
-        self.keyboard_buffer = None
-        self.screen = None
+        self.keyboard_buffer = keyboard_buffer
+        if keyboard_buffer >= data_memory_size:
+            raise InvalidMemoryAddrError("Keyboard buffer address out of bounds")
+
+        self.video_memory_start = video_memory_start
+        if video_memory_start >= data_memory_size:
+            raise InvalidMemoryAddrError("Video memory address out of bounds")
+
         # Additional helper variables
         self.labels = {}
 
-    def keyboard_input(self, input):
-        if self.keyboard_buffer is None:
-            self.keyboard_buffer = []
+    def set_keyboard_value(self, value):
+        self.data_memory[self.keyboard_buffer] = value
 
-        self.keyboard_buffer.append(input)
+    def get_keyboard_value(self):
+        if self.data_memory[self.keyboard_buffer] is None:
+            return None
 
-    def keyboard_output(self):
-        return self.keyboard_buffer.pop(0)
+        return self.data_memory[self.keyboard_buffer]
+
+    def write_to_video_memory(self, value):
+        # print("Writing to video memory: ", self.data_memory)
+        for i in range(self.video_memory_start, len(self.data_memory)):
+            if self.data_memory[i] is None:
+                self.data_memory[i] = value
+                return
+
+    def read_video_memory(self):
+        return self.data_memory[self.video_memory_start:]
 
     def get_instruction(self, address):
         self.check_instruction_memory_address(address)

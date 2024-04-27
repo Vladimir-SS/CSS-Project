@@ -124,6 +124,15 @@ class Processor:
         else:
             print("Error: Unsupported destination operand")
 
+    def observe_memory(self):
+        if self.memory.get_keyboard_value() is not None:
+            keyboard_input = self.memory.get_keyboard_value()
+            print("Keyboard buffer value:", chr(keyboard_input))
+
+            self.memory.write_to_video_memory(keyboard_input)
+
+            self.memory.set_keyboard_value(None)
+
     def mov(self, operands):
         if len(operands) != 2:
             print("Error: MOV instruction requires two operands")

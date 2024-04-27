@@ -55,7 +55,9 @@
 
 from Processor import Processor
 from Memory import Memory
-from PeripheralDevice import PeripheralDevice
+from GUI import GUI
+from Screen import Screen
+from Keyboard import Keyboard
 
 def read_config_file(file_name):
     with open(file_name) as file:
@@ -68,6 +70,8 @@ def read_config_file(file_name):
 
 config = read_config_file('config.cfg')
 
-memory = Memory(config['instruction_memory_size'], config['data_memory_size'])
+memory = Memory(config['instruction_memory_size'], config['data_memory_size'], config['keyboard_buffer'], config['video_memory_start'])
 program = Processor(memory)
 program.execute_program('asm-example-file.txt')
+
+gui = GUI(program, Keyboard(), Screen(10, 10))
