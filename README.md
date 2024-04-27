@@ -28,47 +28,22 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `data_registers` - List to store the values of the 8 data registers.
 - `flags` - Dictionary to store the values of conditional flags (CF, PF, ZF, SF, OF).
 - Special registers:
-  - `stack`: List to simulate stack operations. ( the stack pointer is in the list so we don't need to store it separately)
+  - `stack_pointer`: List to simulate stack operations. ( the stack pointer is in the list so we don't need to store it separately)
   - `program_counter`: Points to the current instruction being executed.
 - Additional attributes:
-  - `instructions`: List to store parsed instructions from the program file.
-  - `labels`: Dictionary to store labels and their corresponding instruction indices.
+  - `memory`: Reference to the memory class to access memory locations.
   - `instruction_types`: Dictionary mapping instruction names to their respective methods.
-- Types not used at the moment:
-  - a reference to the `memory class` (to make operations)
-  - might need references to the `peripherals addresses` in memory but not sure
-```python
-self.keyboard_address = config["keyboard_buffer_address"] self.video_memory_start = config["video_memory_start_address"] self.video_memory_size = config["video_memory_size"]
-```
 ##### Methods:
 - `execute_instruction(instruction)`: Executes a single instruction.
 - `execute_program(file_name)`: Reads instructions from the text file, parses them, and executes them.
 - `parse_instruction(instruction)`: Parses a single instruction from the program file and adds it to the instruction list. (in case of a label, it stores the label and its corresponding instruction index in the labels dictionary).
 - `parse_file(file_name)`: Reads the program file and parses each instruction.
+- `parse_memory_operand`: Parses a memory operand to determine its address.
 - `get_operand_value(operand)`: Returns the value of an operand (register, memory location, or constant value).
 - `store_result(destination, result)`: Stores the result of an operation in the destination operand.
+- `observe_memory`: Observes changes in memory, such as keyboard input.
 - Methods for various instruction types such as `mov`, `add`, `sub`, `mul`, `div`, `cmp`, `jmp`, `je`, `jne`, `jg`, `jl`, `jge`, `jle`, `push`, `pop`, `call`, `ret`.
-- Additional methods:
-  - `check_keyboard()`
-
 ------------------------------------
-### Possible classes to use in the processor instead of raw data and checks
-
-#### Instruction class
-- one or two operands(binary operation, the first operand stores the result)
-##### Attributes:
-- `operation` - type of operation (ADD, SUB, JMP)
-- `operands` - a list or tuple of operands (registers/memory addresses/immediate values)
-- `flag_effects` - optional, indicates how the instruction affects conditional flags
-##### Methods
-- `execute(self, processor_context)` - executes the instruction using the provided processor context (registers, memory)
-
-#### Operand class
-- a 16 bit value
-- an operand can be a data register, memory location or constant value
-
-------------------------------------
-
 ### Memory
 - stores both instruction and data memory
 - handles read/write operations
@@ -140,3 +115,7 @@ With an instance of the processor, memory (should be passed to the processor), k
   - `XOR destination, source`
   - `SHL destination, source`
   - `SHR destination, source`
+- **Data types:**
+  - Data registers: `R0`, `R1`, `R2`, `R3`, `R4`, `R5`, `R6`, `R7`
+  - Memory locations: `M<value>/<register>`
+  - Constant values: `#<value>`

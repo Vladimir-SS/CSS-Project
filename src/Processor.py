@@ -1,5 +1,41 @@
 class Processor:
+    """
+    Emulates a processor with specified components and operations.
+
+    Attributes:
+    - data_registers (list): List of 8 data registers, each 16-bit wide.
+    - flags (dict): Dictionary to hold conditional flags such as carry, parity, zero, sign, and overflow flags.
+    - program_counter (int or None): Holds the current instruction's address.
+    - stack_pointer (list): Stack pointer for function calls and returns.
+    - memory (Memory): Memory object to access system memory.
+    - instruction_types (dict): Dictionary mapping instruction names to their corresponding methods.
+
+    Methods:
+    - __init__: Initializes the Processor object.
+    - execute_instruction: Executes a single instruction.
+    - execute_program: Executes the program by reading instructions from a file.
+    - parse_instruction: Parses a single instruction and adds it to memory.
+    - parse_file: Parses instructions from a file and adds them to memory.
+    - parse_memory_operand: Parses a memory operand to determine its address.
+    - get_operand_value: Gets the value of an operand.
+    - store_result: Stores the result of an operation.
+    - observe_memory: Observes changes in memory, such as keyboard input.
+    """
     def __init__(self, memory):
+        """
+        Initialize the Processor object.
+
+        Parameters:
+        - memory (Memory): An instance of the Memory class.
+
+        Attributes:
+        - data_registers (list): List of 8 data registers, each 16-bit wide.
+        - flags (dict): Dictionary to hold conditional flags.
+        - program_counter (int or None): Holds the current instruction's address.
+        - stack_pointer (list): Stack for function calls and returns.
+        - memory (Memory): Memory object to access system memory.
+        - instruction_types (dict): Dictionary mapping instruction names to their corresponding methods. ( to avoid using if-elif-else statements)
+        """
         self.data_registers = [0 for _ in range(8)]
         self.flags = {
             'CF': False,  # Carry Flag: is set when an arithmetic operation generates a carry or borrows from the most significant bit; used in testing for overflow in signed integer arithmetic
@@ -47,12 +83,24 @@ class Processor:
         }
 
     def execute_instruction(self, instruction):
+        """
+        Execute a single instruction. ( skips label instructions)
+
+        Parameters:
+        - instruction (tuple): A tuple containing the instruction type and operands.
+        """
         if instruction is None: # Skip labels
             return
         instruction_type, operands = instruction
         self.instruction_types[instruction_type](operands)
 
     def execute_program(self, file_name):
+        """
+        Parse a single instruction and add it to memory.
+
+        Parameters:
+        - instruction (str): A single instruction in assembly-like language.
+        """
         self.parse_file(file_name)
 
         if self.program_counter is None:
@@ -63,6 +111,12 @@ class Processor:
             self.program_counter += 1
 
     def parse_instruction(self, instruction):
+        """
+        Parse a single instruction and add it to memory.
+
+        Parameters:
+        - instruction (str): A single instruction in assembly-like language.
+        """
         if instruction.startswith(';') or instruction == '':
             return
 
@@ -79,6 +133,12 @@ class Processor:
             self.memory.add_instruction(None, opcode[:-1])
 
     def parse_file(self, file_name):
+        """
+        Parse instructions from a file and add them to memory.
+
+        Parameters:
+        - file_name (str): Name of the file containing instructions.
+        """
         with open(file_name, 'r') as file:
             for line in file:
                 self.parse_instruction(line.strip())
@@ -95,16 +155,23 @@ class Processor:
         """
         if operand.startswith('M'):
             if operand[1:].startswith('R'):
-                # Address specified by a data register
                 register_index = int(operand[2:])
                 return self.data_registers[register_index]
             else:
-                # Address specified by a constant value
                 return int(operand[1:])
         else:
             raise ValueError("Invalid memory operand format")
 
     def get_operand_value(self, operand):
+        """
+        Get the value of an operand.
+
+        Parameters:
+        - operand (str): Operand string.
+
+        Returns:
+        - int: Value of the operand.
+        """
         if operand.startswith('R'):
             register_index = int(operand[1:])
             return self.data_registers[register_index]
@@ -118,13 +185,26 @@ class Processor:
             return 0  # Return a default value if unsupported
 
     def store_result(self, destination, result):
+        """
+        Store the result of an operation.
+
+        Parameters:
+        - destination (str): Destination operand.
+        - result (int): Result of the operation.
+        """
         if destination.startswith('R'):
             register_index = int(destination[1:])
             self.data_registers[register_index] = result
+        elif destination.startswith('M'):
+            address = self.parse_memory_operand(destination)
+            self.memory.set_data(address, result)
         else:
             print("Error: Unsupported destination operand")
 
     def observe_memory(self):
+        """
+            Observes keyboard input changes in memory and writes the value to video memory.
+        """
         if self.memory.get_keyboard_value() is not None:
             keyboard_input = self.memory.get_keyboard_value()
             print("Keyboard buffer value:", chr(keyboard_input))
@@ -221,6 +301,20 @@ class Processor:
         print('DIV', operands)
 
     def cmp(self, operands):
+        """
+        Perform comparison operation.
+
+        Compares two operands and sets conditional flags accordingly.
+
+        Parameters:
+        - operands (list): List of two operands.
+
+        Flags Updated:
+        - ZF (Zero Flag): Set if the two operands are equal.
+        - SF (Sign Flag): Set if the result of subtraction is negative.
+        - CF (Carry Flag): Set if the first operand is less than the second operand.
+        - OF (Overflow Flag): Set if the result of subtraction exceeds the signed integer range.
+        """
         if len(operands) != 2:
             print("Error: CMP instruction requires two operands")
             return
