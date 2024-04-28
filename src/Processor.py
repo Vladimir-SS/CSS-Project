@@ -13,7 +13,7 @@ class Processor:
     Methods:
     - __init__: Initializes the Processor object.
     - execute_instruction: Executes a single instruction.
-    - execute_program: Executes the program by reading instructions from a file.
+    - execute_program: Execute instructions from a file sequentially.
     - parse_instruction: Parses a single instruction and adds it to memory.
     - parse_file: Parses instructions from a file and adds them to memory.
     - parse_memory_operand: Parses a memory operand to determine its address.
@@ -96,10 +96,10 @@ class Processor:
 
     def execute_program(self, file_name):
         """
-        Parse a single instruction and add it to memory.
+        Execute instructions from a file sequentially.
 
         Parameters:
-        - instruction (str): A single instruction in assembly-like language.
+        - file_name (str): The name of the file containing instructions to be executed.
         """
         self.parse_file(file_name)
 

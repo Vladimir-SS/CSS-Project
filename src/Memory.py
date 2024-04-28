@@ -11,6 +11,11 @@ class Memory:
     Attributes:
         MAX_MEMORY_SIZE (int): Maximum memory size in bytes.
         MIN_MEMORY_SIZE (int): Minimum memory size in bytes.
+        instruction_memory (list): List to store program instructions.
+        data_memory (list): List to store data, including special areas for peripherals.
+        keyboard_buffer (int): Address of the keyboard buffer in data memory.
+        video_memory_start (int): Start address of video memory in data memory.
+        labels (dict): Dictionary to store labels and their corresponding addresses.
 
     Methods:
         __init__: Initializes the Memory object.
