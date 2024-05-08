@@ -19,6 +19,8 @@ OR R2, R3     ; Bitwise OR operation between R2 and R3, store result in R2
 XOR R4, R5    ; Bitwise XOR operation between R4 and R5, store result in R4
 SHL R6, #2    ; Shift value of R6 left by 2 positions, store result in R6
 
+MOV M4000 M4095 ; reading from the keyboard
+
 ; Comparison
 CMP R3, R4        ; Compare values of R3 and R4, set flags based on the relation
 

@@ -25,8 +25,8 @@ The processor reads and parses the entire instruction set from the file and stor
 
 The keyboard buffer is allocated a single address - this address is part of the data memory and is **checked by the processor** to see if there's any new input (the processor will periodically check this address to see if it contains any new data (non-zero value), process the data if present, and then reset the buffer).
 #### Attributes:
-- `data_registers` - List to store the values of the 8 data registers.
-- `flags` - Dictionary to store the values of conditional flags (CF, PF, ZF, SF, OF).
+- `data_registers`: List to store the values of the 8 data registers.
+- `flags`: Dictionary to store the values of conditional flags (CF, PF, ZF, SF, OF).
 - Special registers:
   - `stack_pointer`: List to simulate stack operations. ( the stack pointer is in the list so we don't need to store it separately)
   - `program_counter`: Points to the current instruction being executed.
@@ -35,54 +35,39 @@ The keyboard buffer is allocated a single address - this address is part of the 
   - `instruction_types`: Dictionary mapping instruction names to their respective methods.
 ##### Methods:
 - `execute_instruction(instruction)`: Executes a single instruction.
-- `execute_program(file_name)`: Reads instructions from the text file, parses them, and executes them.
+- `execute_program(file_name)`: Execute instructions from a file sequentially.
 - `parse_instruction(instruction)`: Parses a single instruction from the program file and adds it to the instruction list. (in case of a label, it stores the label and its corresponding instruction index in the labels dictionary).
 - `parse_file(file_name)`: Reads the program file and parses each instruction.
 - `parse_memory_operand`: Parses a memory operand to determine its address.
 - `get_operand_value(operand)`: Returns the value of an operand (register, memory location, or constant value).
 - `store_result(destination, result)`: Stores the result of an operation in the destination operand.
-- `observe_memory`: Observes changes in memory, such as keyboard input.
 - Methods for various instruction types such as `mov`, `add`, `sub`, `mul`, `div`, `cmp`, `jmp`, `je`, `jne`, `jg`, `jl`, `jge`, `jle`, `push`, `pop`, `call`, `ret`.
 ------------------------------------
 ### Memory
 - stores both instruction and data memory
 - handles read/write operations
 ##### Attributes:
-- `instruction_memory` - array or list to store the programs instructions
-- `data_memory` - array or list to store data, including special areas for peripherals
+- `MAX_MEMORY_SIZE`: Maximum memory size in bytes.
+- `MIN_MEMORY_SIZE`: Minimum memory size in bytes.
+- `instruction_memory`: List to store program instructions.
+- `data_memory`: List to store data, including special areas for peripherals.
+- `video_memory_start`: Start address of video memory.
+- `keyboard_buffer`: Address of the keyboard buffer.
+- `labels`: Dictionary to store labels and their corresponding addresses.
 #### Methods:
-- `read(address, is_data=True)` - returns the value stored at the specific address
-- `write(address, value, is_data=True)` - writes a value to the specified address
-
--------------------------------------
-### Peripherals classes
-
-#### Keyboard Class
-- simulates a keyboard input buffer
-##### Attributes:
-- `buffer` - a FIFO queue to simulate keypress
-##### Methods:
-- `read_key()`: Returns the next key from the buffer
-- `simulate_keypress(key)`: Adds a keypress to the buffer
-
-#### Screen Class
-- simulates a text display screen
-##### Attributes:
-- `video_memory` - an array or list representing the screen's content
-##### Methods:
-- `write_to_screen(address, value)` - updates the screen's display based on the video memory address
-- `refresh_display()` - optional, to refresh the simulated screen display in the GUI
-
-
--------------------------------------
-### System class
-
-With an instance of the processor, memory (should be passed to the processor), keyboard and screen
-
-##### Methods:
-- `load_configuration(config_file)` - reads the config file(`json`), validates the memory sizes and initializes the memory components
-- `load_program(file_path)` - reads the instruction file, parses it and returns the list of instructions (each line from the file)
-- `execute_program()` - calls the processor to start execution
+- `set_keyboard_value(value)`: Sets the value in the keyboard buffer.
+- `get_keyboard_value()`: Gets the value from the keyboard buffer.
+- `write_to_video_memory(value)`: Writes a value to the video memory.
+- `read_video_memory()`: Reads the content of video memory.
+- `get_instruction(address)`: Retrieves instruction from the given address.
+- `add_instruction(instruction, label=None)`: Adds an instruction to the instruction memory.
+- `set_data(address, value)`: Sets data at the specified address in data memory.
+- `goto_label(label)`: Jumps to the address associated with the specified label.
+- `check_instruction_memory_overflow(address)`: Checks for overflow in instruction memory.
+- `check_instruction_memory_address(address)`: Checks if the address is within bounds of instruction memory.
+- `check_data_memory_overflow(address)`: Checks for overflow in data memory.
+- `check_memory_address(address)`: Checks if the address is within bounds of data memory.
+- `validate_memory_size(size)`: Validates the memory size.
 
 -------------------------------------
 ## Assembly-Like Language Syntax

@@ -9,6 +9,12 @@ class Processor:
     - stack_pointer (list): Stack pointer for function calls and returns.
     - memory (Memory): Memory object to access system memory.
     - instruction_types (dict): Dictionary mapping instruction names to their corresponding methods.
+    - is_file_parsed (bool): Indicates whether the file has been parsed.
+    - file_name (str): Name of the file containing instructions.
+    - Keyboard input handling:
+        - is_reading_input (bool): Indicates whether the processor is waiting for keyboard input.
+        - input (str): Keyboard input string.
+        - input_destination (str): Destination operand for keyboard input.
 
     Methods:
     - __init__: Initializes the Processor object.
@@ -17,11 +23,15 @@ class Processor:
     - parse_instruction: Parses a single instruction and adds it to memory.
     - parse_file: Parses instructions from a file and adds them to memory.
     - parse_memory_operand: Parses a memory operand to determine its address.
+    - check_register_index: Checks if the given index is a valid register index.
     - get_operand_value: Gets the value of an operand.
     - store_result: Stores the result of an operation.
-    - observe_memory: Observes changes in memory, such as keyboard input.
+    - assert_16_bit: Truncates a value to fit within 16 bits.
+    - reading_input: Handles keyboard input.
+    - get_memory_data: Gets the value of a memory operand. ( starts reading input if keyboard buffer is accessed)
+    - convert_keyboard_input: Converts keyboard input to a numerical value or ASCII value.
     """
-    def __init__(self, memory):
+    def __init__(self, memory, file_name=None):
         """
         Initialize the Processor object.
 
@@ -48,6 +58,14 @@ class Processor:
         self.program_counter = None
         self.stack_pointer = []
         self.memory = memory # Memory "pointer" - used to access memory without overcomplicating the memory class by making it static
+
+        # Helper variables
+        self.is_file_parsed = False
+        self.file_name = file_name
+        # Keyboard input handling
+        self.is_reading_input = False
+        self.input = ''
+        self.input_destination = None
 
         self.instruction_types = {
         # Assignment
@@ -94,21 +112,27 @@ class Processor:
         instruction_type, operands = instruction
         self.instruction_types[instruction_type](operands)
 
-    def execute_program(self, file_name):
+    def execute_program(self):
         """
         Execute instructions from a file sequentially.
 
         Parameters:
         - file_name (str): The name of the file containing instructions to be executed.
         """
-        self.parse_file(file_name)
+        if not self.is_file_parsed:
+            self.parse_file(self.file_name)
 
-        if self.program_counter is None:
-            self.program_counter = 0
+            if self.program_counter is None:
+                self.program_counter = 0
 
-        while self.memory.check_instruction_memory_address(self.program_counter):
+        if self.is_reading_input:
+            self.reading_input()
+            return
+
+        if self.memory.check_instruction_memory_address(self.program_counter):
             self.execute_instruction(self.memory.get_instruction(self.program_counter))
             self.program_counter += 1
+
 
     def parse_instruction(self, instruction):
         """
@@ -156,15 +180,30 @@ class Processor:
         if operand.startswith('M'):
             if operand[1:].startswith('R'):
                 register_index = int(operand[2:])
+                self.check_register_index(register_index)
                 return self.data_registers[register_index]
             else:
                 return int(operand[1:])
         else:
             raise ValueError("Invalid memory operand format")
 
+    def check_register_index(self, index):
+        """
+        Check if the given index is a valid register index.
+
+        Parameters:
+        - index (int): The register index.
+
+        Raises:
+        - ValueError: If the index is invalid.
+        """
+        if index < 0 or index >= len(self.data_registers):
+            raise ValueError("Invalid register index")
+
+
     def get_operand_value(self, operand):
         """
-        Get the value of an operand.
+        Get the value of an operand based on its type. ( ensures 16-bit width of operands)
 
         Parameters:
         - operand (str): Operand string.
@@ -174,9 +213,10 @@ class Processor:
         """
         if operand.startswith('R'):
             register_index = int(operand[1:])
+            self.check_register_index(register_index)
             return self.data_registers[register_index]
         elif operand.startswith('#'):
-            return int(operand[1:])
+            return self.assert_16_bit(int(operand[1:]))
         elif operand.startswith('M'):
             address = self.parse_memory_operand(operand)
             return self.memory.get_data(address)
@@ -192,8 +232,11 @@ class Processor:
         - destination (str): Destination operand.
         - result (int): Result of the operation.
         """
+        self.assert_16_bit(result)
+
         if destination.startswith('R'):
             register_index = int(destination[1:])
+            self.check_register_index(register_index)
             self.data_registers[register_index] = result
         elif destination.startswith('M'):
             address = self.parse_memory_operand(destination)
@@ -201,17 +244,79 @@ class Processor:
         else:
             print("Error: Unsupported destination operand")
 
-    def observe_memory(self):
+    def assert_16_bit(self, value):
         """
-            Observes keyboard input changes in memory and writes the value to video memory.
+        Truncate a value to fit within 16 bits.
+
+        Parameters:
+        - value (int): The value to be truncated.
+
+        Returns:
+        - int: The truncated 16-bit value.
         """
-        if self.memory.get_keyboard_value() is not None:
-            keyboard_input = self.memory.get_keyboard_value()
-            print("Keyboard buffer value:", chr(keyboard_input))
+        max_value_16bit = (1 << 15) - 1  # Maximum value of a 16-bit signed integer (32767)
+        min_value_16bit = -(1 << 15)     # Minimum value of a 16-bit signed integer (-32768)
 
-            self.memory.write_to_video_memory(keyboard_input)
+        if value > max_value_16bit:
+            print("Warning: Value exceeds the maximum 16-bit signed integer. Truncated to fit within 16 bits.")
+            return max_value_16bit
+        elif value < min_value_16bit:
+            print("Warning: Value is less than the minimum 16-bit signed integer. Truncated to fit within 16 bits.")
+            return min_value_16bit
+        else:
+            return value
 
-            self.memory.set_keyboard_value(None)
+    def reading_input(self):
+        """
+        Handle keyboard input.
+        """
+        if self.memory.get_keyboard_pointer() is not None:
+            keyboard = self.memory.get_keyboard_pointer()
+            while keyboard.has_characters():
+                char = keyboard.get_next_character()
+                if char == 13: # Enter key
+                    self.is_reading_input = False
+                    print('Input:', self.input)
+                    self.store_result(self.input_destination, self.convert_keyboard_input(self.input))
+                    self.input = ''
+                    break
+                self.input += chr(char)
+
+    def get_memory_data(self, operand, destination):
+        """
+        Gets the value of a memory operand.
+
+        Parameters:
+        - operand (str): Operand string.
+        - destination (str): Destination operand. ( used only when reading input from keyboard buffer)
+
+        Returns:
+        - int: Value of the memory operand.
+        """
+        if operand.startswith('M'):
+            address = self.parse_memory_operand(operand)
+            if address == self.memory.keyboard_buffer_address:
+                self.is_reading_input = True
+                self.input_destination = destination
+                return None
+            else:
+                return self.memory.get_data(address)
+        else:
+            raise ValueError("Invalid memory operand format")
+
+    def convert_keyboard_input(self, keyboard_input):
+        """
+        Convert keyboard input to a numerical value or ASCII value.
+
+        Returns:
+        - int: The numerical value if input is a digit; ASCII value if input is a single char and non-numeric; -1 otherwise.
+        """
+        if keyboard_input.isdigit():
+            return int(keyboard_input)
+        elif len(keyboard_input) == 1:
+            return ord(keyboard_input) # Return ASCII value for single characters
+        else:
+            return -1
 
     def mov(self, operands):
         if len(operands) != 2:
@@ -225,21 +330,19 @@ class Processor:
         if source.startswith('#'):
             source = int(source[1:])
         elif source.startswith('R'):
-            source = self.data_registers[int(source[1:])]
+            register_index = int(source[1:])
+            self.check_register_index(register_index)
+            source = self.data_registers[register_index]
         elif source.startswith('M'):
-            source = self.memory.get_data(self.parse_memory_operand(source))
+            source = self.get_memory_data(source, destination)
+            if source is None:
+                return
         else:
             print("Error: Unsupported source operand")
             return
 
         # Handle different destination operand types: data registers, memory locations
-        if destination.startswith('R'):
-            dest_register = int(destination[1:])
-            self.data_registers[dest_register] = source
-        elif destination.startswith('M'):
-            self.memory.set_data(self.parse_memory_operand(destination), source)
-        else:
-            print("Error: Unsupported destination operand")
+        self.store_result(destination, source)
 
         print('MOV', operands)
 
@@ -325,7 +428,7 @@ class Processor:
         self.flags['ZF'] = operand1 == operand2
         self.flags['SF'] = (operand1 - operand2) < 0
         self.flags['CF'] = operand1 < operand2
-        self.flags['OF'] = ((operand1 - operand2) > 2147483647) or ((operand1 - operand2) < -2147483648)
+        self.flags['OF'] = ((operand1 - operand2) > 32767) or ((operand1 - operand2) < -32768)
 
         print('CMP', operands[0], operand1, operands[1], operand2)
 

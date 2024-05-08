@@ -13,14 +13,14 @@ class Memory:
         MIN_MEMORY_SIZE (int): Minimum memory size in bytes.
         instruction_memory (list): List to store program instructions.
         data_memory (list): List to store data, including special areas for peripherals.
-        keyboard_buffer (int): Address of the keyboard buffer in data memory.
+        keyboard_buffer_address (int): Address of the keyboard buffer in data memory.
         video_memory_start (int): Start address of video memory in data memory.
         labels (dict): Dictionary to store labels and their corresponding addresses.
 
     Methods:
         __init__: Initializes the Memory object.
         set_keyboard_value: Sets the value in the keyboard buffer.
-        get_keyboard_value: Gets the value from the keyboard buffer.
+        get_keyboard_pointer: Gets the value from the keyboard buffer.
         write_to_video_memory: Writes a value to the video memory.
         read_video_memory: Reads the content of video memory.
         get_instruction: Retrieves instruction from the given address.
@@ -30,20 +30,20 @@ class Memory:
         check_instruction_memory_overflow: Checks for overflow in instruction memory.
         check_instruction_memory_address: Checks if the address is within bounds of instruction memory.
         check_data_memory_overflow: Checks for overflow in data memory.
-        check_memory_address: Checks if the address is within bounds of data memory.
+        check_memory_address: Checks if the address is within bounds of data memory and not the keyboard buffer.
         validate_memory_size: Validates the memory size.
     """
     MAX_MEMORY_SIZE = 65536  # Maximum memory size in bytes
     MIN_MEMORY_SIZE = 1024   # Minimum memory size in bytes
 
-    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer, video_memory_start):
+    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer_address, video_memory_start):
         """
         Initializes the Memory object.
 
         Parameters:
             instruction_memory_size (int): Size of instruction memory.
             data_memory_size (int): Size of data memory.
-            keyboard_buffer (int): Address of the keyboard buffer.
+            keyboard_buffer_address (int): Address of the keyboard buffer.
             video_memory_start (int): Start address of video memory.
 
         Raises:
@@ -59,8 +59,8 @@ class Memory:
         self.data_memory = [None] * data_memory_size
 
         # Peripheral devices
-        self.keyboard_buffer = keyboard_buffer
-        if keyboard_buffer >= data_memory_size:
+        self.keyboard_buffer_address = keyboard_buffer_address
+        if keyboard_buffer_address >= data_memory_size:
             raise InvalidMemoryAddrError("Keyboard buffer address out of bounds")
 
         self.video_memory_start = video_memory_start
@@ -70,26 +70,26 @@ class Memory:
         # Additional helper variables
         self.labels = {}
 
-    def set_keyboard_value(self, value):
+    def set_keyboard_pointer(self, ptr):
         """
-        Sets the value in the keyboard buffer.
+        Sets the pointer to the Keyboard instance in the keyboard buffer.
 
         Parameters:
-            value: Value to be set in the keyboard buffer.
+            ptr: Keyboard instance to be set in the keyboard buffer.
         """
-        self.data_memory[self.keyboard_buffer] = value
+        self.data_memory[self.keyboard_buffer_address] = ptr
 
-    def get_keyboard_value(self):
+    def get_keyboard_pointer(self):
         """
-        Gets the value from the keyboard buffer.
+        Gets the Keyboard instance from the keyboard buffer.
 
         Returns:
-            The value from the keyboard buffer.
+            The Keyboard instance from the keyboard buffer, or None if no instance is set.
         """
-        if self.data_memory[self.keyboard_buffer] is None:
+        if self.data_memory[self.keyboard_buffer_address] is None:
             return None
 
-        return self.data_memory[self.keyboard_buffer]
+        return self.data_memory[self.keyboard_buffer_address]
 
     def write_to_video_memory(self, value):
         """
@@ -110,7 +110,7 @@ class Memory:
         Returns:
             The content of video memory.
         """
-        return self.data_memory[self.video_memory_start:]
+        return self.data_memory[self.video_memory_start:self.keyboard_buffer_address]
 
     def get_instruction(self, address):
         """
@@ -125,8 +125,10 @@ class Memory:
         Raises:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
-        self.check_instruction_memory_address(address)
-        return self.instruction_memory[address]
+        if self.check_instruction_memory_address(address):
+            return self.instruction_memory[address]
+        else:
+            raise InvalidMemoryAddrError("Invalid instruction memory address")
 
     def add_instruction(self, instruction, label = None):
         """
@@ -190,6 +192,8 @@ class Memory:
     def check_memory_address(self, address):
         if address >= self.data_memory_size or address < 0 or address is None:
             raise InvalidMemoryAddrError("Data memory overflow")
+        if address == self.keyboard_buffer_address:
+            raise InvalidMemoryAddrError("Cannot overwrite keyboard buffer")
 
     def validate_memory_size(self, size):
         """
