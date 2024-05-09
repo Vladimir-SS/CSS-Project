@@ -1,7 +1,7 @@
 ; Example program
 
 ; Assignment
-MOV R1, #10       ; Move immediate value 10 to register R1
+MOV R1, #67       ; Move immediate value 10 to register R1
 MOV R2, R1        ; Move value from R1 to R2
 MOV R3, #2       ; Move value from R1 to R2
 MOV M10, R2

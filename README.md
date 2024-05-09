@@ -33,14 +33,25 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - Additional attributes:
   - `memory`: Reference to the memory class to access memory locations.
   - `instruction_types`: Dictionary mapping instruction names to their respective methods.
+  - `is_file_parsed (bool)`: Indicates whether the file has been parsed.
+  - `file_name (str)`: Name of the file containing instructions.
+  - Keyboard input handling:
+    - `is_reading_input (bool)`: Indicates whether the processor is waiting for keyboard input.
+    - `input (str)`: Keyboard input string.
+    - `input_destination (str)`: Destination operand for keyboard input.
 ##### Methods:
 - `execute_instruction(instruction)`: Executes a single instruction.
 - `execute_program(file_name)`: Execute instructions from a file sequentially.
 - `parse_instruction(instruction)`: Parses a single instruction from the program file and adds it to the instruction list. (in case of a label, it stores the label and its corresponding instruction index in the labels dictionary).
 - `parse_file(file_name)`: Reads the program file and parses each instruction.
 - `parse_memory_operand`: Parses a memory operand to determine its address.
+- `check_register_index(index)`: Checks if the given index is a valid register index.
 - `get_operand_value(operand)`: Returns the value of an operand (register, memory location, or constant value).
 - `store_result(destination, result)`: Stores the result of an operation in the destination operand.
+- `assert_16_bit(value)`: Truncates a value to fit within 16 bits.
+- `reading_input`: Handles keyboard input.
+- `get_memory_data(operand, destination)`: Gets the value of a memory operand. (starts reading input if keyboard buffer is accessed)
+- `convert_keyboard_input(keyboard_input)`: Converts keyboard input to a numerical value or ASCII value.
 - Methods for various instruction types such as `mov`, `add`, `sub`, `mul`, `div`, `cmp`, `jmp`, `je`, `jne`, `jg`, `jl`, `jge`, `jle`, `push`, `pop`, `call`, `ret`.
 ------------------------------------
 ### Memory
@@ -57,7 +68,6 @@ The keyboard buffer is allocated a single address - this address is part of the 
 #### Methods:
 - `set_keyboard_value(value)`: Sets the value in the keyboard buffer.
 - `get_keyboard_value()`: Gets the value from the keyboard buffer.
-- `write_to_video_memory(value)`: Writes a value to the video memory.
 - `read_video_memory()`: Reads the content of video memory.
 - `get_instruction(address)`: Retrieves instruction from the given address.
 - `add_instruction(instruction, label=None)`: Adds an instruction to the instruction memory.

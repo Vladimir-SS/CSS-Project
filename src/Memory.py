@@ -21,7 +21,6 @@ class Memory:
         __init__: Initializes the Memory object.
         set_keyboard_value: Sets the value in the keyboard buffer.
         get_keyboard_pointer: Gets the value from the keyboard buffer.
-        write_to_video_memory: Writes a value to the video memory.
         read_video_memory: Reads the content of video memory.
         get_instruction: Retrieves instruction from the given address.
         add_instruction: Adds an instruction to the instruction memory.
@@ -91,18 +90,6 @@ class Memory:
 
         return self.data_memory[self.keyboard_buffer_address]
 
-    def write_to_video_memory(self, value):
-        """
-        Writes a value to the video memory.
-
-        Parameters:
-            value: Value to be written to the video memory.
-        """
-        for i in range(self.video_memory_start, len(self.data_memory)):
-            if self.data_memory[i] is None:
-                self.data_memory[i] = value
-                return
-
     def read_video_memory(self):
         """
         Reads the content of video memory.
@@ -155,6 +142,9 @@ class Memory:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
         self.check_memory_address(address)
+        if address >= self.video_memory_start:
+            value = value & 0xFF  # Limit value to 8 bits for video memory (0-255)
+
         self.data_memory[address] = value
 
     def goto_label(self, label):

@@ -53,12 +53,11 @@ class GUI:
     def key_press(self, char): # mby remove this and use keyboard.input_character directly
         self.keyboard.input_character(ord(char))
 
-    # TO DO: should be repaired str(char_code) is not ok
     def update_screen(self):
         self.screen_text.delete(1.0, tk.END)
         video_memory = self.processor.memory.read_video_memory()
         for i, char_code in enumerate(video_memory):
             if char_code is not None:
-                self.screen_text.insert(tk.END, str(char_code))
+                self.screen_text.insert(tk.END, chr(char_code))
             if (i + 1) % self.screen.width == 0:
                 self.screen_text.insert(tk.END, '\n')
