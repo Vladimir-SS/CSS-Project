@@ -15,6 +15,7 @@ class Memory:
         data_memory (list): List to store data, including special areas for peripherals.
         keyboard_buffer_address (int): Address of the keyboard buffer in data memory.
         video_memory_start (int): Start address of video memory in data memory.
+        video_memory_end (int): End address of video memory in data memory.
         labels (dict): Dictionary to store labels and their corresponding addresses.
 
     Methods:
@@ -35,7 +36,7 @@ class Memory:
     MAX_MEMORY_SIZE = 65536  # Maximum memory size in bytes
     MIN_MEMORY_SIZE = 1024   # Minimum memory size in bytes
 
-    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer_address, video_memory_start):
+    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer_address, video_memory_start, video_memory_end):
         """
         Initializes the Memory object.
 
@@ -44,6 +45,7 @@ class Memory:
             data_memory_size (int): Size of data memory.
             keyboard_buffer_address (int): Address of the keyboard buffer.
             video_memory_start (int): Start address of video memory.
+            video_memory_end (int): End address of video memory.
 
         Raises:
             InvalidMemoryAddrError: If keyboard buffer or video memory address is out of bounds.
@@ -64,6 +66,10 @@ class Memory:
 
         self.video_memory_start = video_memory_start
         if video_memory_start >= data_memory_size:
+            raise InvalidMemoryAddrError("Video memory address out of bounds")
+
+        self.video_memory_end = video_memory_end
+        if video_memory_end >= data_memory_size or video_memory_end < video_memory_start:
             raise InvalidMemoryAddrError("Video memory address out of bounds")
 
         # Additional helper variables
@@ -97,7 +103,7 @@ class Memory:
         Returns:
             The content of video memory.
         """
-        return self.data_memory[self.video_memory_start:self.keyboard_buffer_address]
+        return self.data_memory[self.video_memory_start:self.video_memory_end + 1]
 
     def get_instruction(self, address):
         """
@@ -142,7 +148,7 @@ class Memory:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
         self.check_memory_address(address)
-        if address >= self.video_memory_start:
+        if address >= self.video_memory_start and address <= self.video_memory_end:
             value = value & 0xFF  # Limit value to 8 bits for video memory (0-255)
 
         self.data_memory[address] = value

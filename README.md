@@ -63,6 +63,7 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `instruction_memory`: List to store program instructions.
 - `data_memory`: List to store data, including special areas for peripherals.
 - `video_memory_start`: Start address of video memory.
+- `video_memory_end`: End address of video memory.
 - `keyboard_buffer`: Address of the keyboard buffer.
 - `labels`: Dictionary to store labels and their corresponding addresses.
 #### Methods:

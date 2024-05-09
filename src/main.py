@@ -66,7 +66,7 @@ def read_config_file(file_name):
 
 config = read_config_file('config.cfg')
 
-memory = Memory(config['instruction_memory_size'], config['data_memory_size'], config['keyboard_buffer'], config['video_memory_start'])
+memory = Memory(config['instruction_memory_size'], config['data_memory_size'], config['keyboard_buffer'], config['video_memory_start'], config['video_memory_end'])
 program = Processor(memory, 'asm-example-file.txt')
 
 gui = GUI(program, Keyboard(), Screen(100, 16))
