@@ -67,8 +67,8 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `keyboard_buffer`: Address of the keyboard buffer.
 - `labels`: Dictionary to store labels and their corresponding addresses.
 #### Methods:
-- `set_keyboard_value(value)`: Sets the value in the keyboard buffer.
-- `get_keyboard_value()`: Gets the value from the keyboard buffer.
+- `set_keyboard_pointer(ptr)`: Sets the pointer to the Keyboard instance in the keyboard buffer.
+- `get_keyboard_pointer`: Gets the Keyboard instance from the keyboard buffer.
 - `read_video_memory()`: Reads the content of video memory.
 - `get_instruction(address)`: Retrieves instruction from the given address.
 - `add_instruction(instruction, label=None)`: Adds an instruction to the instruction memory.

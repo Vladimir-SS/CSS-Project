@@ -33,7 +33,7 @@ class Processor:
     """
     def __init__(self, memory, file_name=None):
         """
-        Initialize the Processor object.
+        Initializes the Processor object.
 
         Parameters:
         - memory (Memory): An instance of the Memory class.

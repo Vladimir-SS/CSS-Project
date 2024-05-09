@@ -4,7 +4,34 @@ from Keyboard import Keyboard
 from Processor import Processor
 
 class GUI:
+    """
+    Represents the graphical user interface (GUI) for the peripheral devices simulation.
+
+    Attributes:
+    - processor (Processor): The Processor object responsible for executing instructions.
+    - keyboard (Keyboard): The Keyboard object for simulating keyboard input.
+    - screen (Screen): The Screen object for displaying output.
+    - buttons_per_row (int): The number of buttons to display per row ( for keyboard input).
+    - interval (int): The interval (in milliseconds) at which instructions are executed.
+
+    Methods:
+    - __init__: Initializes the GUI object.
+    - run_program: Executes the program continuously by periodically calling the execute_program method of the processor.
+    - create_keyboard_buttons: Creates buttons for keyboard input in the GUI.
+    - create_button: Creates a single button widget for keyboard input.
+    - key_press: Handles keyboard button presses and sends input to the Keyboard object.
+    - update_screen: Updates the screen display based on the content of the video memory.
+    """
     def __init__(self, processor: Processor, keyboard: Keyboard, screen: Screen, buttons_per_row=16):
+        """
+        Initializes the GUI object.
+
+        Parameters:
+            processor (Processor): The Processor object responsible for executing instructions.
+            keyboard (Keyboard): The Keyboard object for simulating keyboard input.
+            screen (Screen): The Screen object for displaying output.
+            buttons_per_row (int): The number of buttons to display per row ( for keyboard input).
+        """
         self.processor = processor
         self.keyboard = keyboard
         self.screen = screen
@@ -31,11 +58,18 @@ class GUI:
         self.root.mainloop()
 
     def run_program(self):
+        """
+        Executes the program initially and schedules its recurrent execution using Tkinter's after method.
+        The Processor object manages the execution of program instructions.
+        """
         self.processor.execute_program()
         self.update_screen()
         self.root.after(self.interval, self.run_program)
 
     def create_keyboard_buttons(self):
+        """
+        Creates buttons for keyboard input in the GUI.
+        """
         for row in range(4):  # Split into 4 rows
             for col in range(self.buttons_per_row):
                 char_code = row * self.buttons_per_row + col + 32
@@ -46,14 +80,34 @@ class GUI:
         self.create_button('\r', 3, self.buttons_per_row, "Enter", width=12)
 
     def create_button(self, char_str, row, col, name=None, width=5, height=2):
+        """
+        Creates a single button widget for keyboard input.
+
+        Parameters:
+            char_str (str): The text to be displayed on the button.
+            row (int): The row index of the button in the grid layout.
+            col (int): The column index of the button in the grid layout.
+            name (str): The name of the button (optional).
+            width (int): The width of the button.
+            height (int): The height of the button.
+        """
         button_text = name if name else char_str
         button = tk.Button(self.keyboard_frame, text=button_text, width=width, height=height, command=lambda c=char_str: self.key_press(c))
         button.grid(row=row, column=col)
 
-    def key_press(self, char): # mby remove this and use keyboard.input_character directly
+    def key_press(self, char):
+        """
+        Handles keyboard button presses and sends input to the Keyboard object.
+
+        Parameters:
+            char (str): The character corresponding to the pressed button.
+        """
         self.keyboard.input_character(ord(char))
 
     def update_screen(self):
+        """
+        Updates the screen display based on the content of the video memory.
+        """
         self.screen_text.delete(1.0, tk.END)
         video_memory = self.processor.memory.read_video_memory()
         for i, char_code in enumerate(video_memory):

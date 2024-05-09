@@ -20,8 +20,8 @@ class Memory:
 
     Methods:
         __init__: Initializes the Memory object.
-        set_keyboard_value: Sets the value in the keyboard buffer.
-        get_keyboard_pointer: Gets the value from the keyboard buffer.
+        set_keyboard_pointer: Sets the pointer to the Keyboard instance in the keyboard buffer.
+        get_keyboard_pointer: Gets the Keyboard instance from the keyboard buffer.
         read_video_memory: Reads the content of video memory.
         get_instruction: Retrieves instruction from the given address.
         add_instruction: Adds an instruction to the instruction memory.
