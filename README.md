@@ -73,6 +73,7 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `get_instruction(address)`: Retrieves instruction from the given address.
 - `add_instruction(instruction, label=None)`: Adds an instruction to the instruction memory.
 - `set_data(address, value)`: Sets data at the specified address in data memory.
+- `get_data(address)`: Gets data from the specified address in data memory.
 - `goto_label(label)`: Jumps to the address associated with the specified label.
 - `check_instruction_memory_overflow(address)`: Checks for overflow in instruction memory.
 - `check_instruction_memory_address(address)`: Checks if the address is within bounds of instruction memory.

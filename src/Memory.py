@@ -26,6 +26,7 @@ class Memory:
         get_instruction: Retrieves instruction from the given address.
         add_instruction: Adds an instruction to the instruction memory.
         set_data: Sets data at the specified address in data memory.
+        get_data: Gets data from the specified address in data memory.
         goto_label: Jumps to the address associated with the specified label.
         check_instruction_memory_overflow: Checks for overflow in instruction memory.
         check_instruction_memory_address: Checks if the address is within bounds of instruction memory.
@@ -153,6 +154,22 @@ class Memory:
 
         self.data_memory[address] = value
 
+    def get_data(self, address):
+        """
+        Gets data from the specified address in data memory.
+
+        Parameters:
+            address (int): Address in data memory.
+
+        Returns:
+            Value stored at the specified address.
+
+        Raises:
+            InvalidMemoryAddrError: If the address is out of bounds.
+        """
+        self.check_memory_address(address)
+        return self.data_memory[address]
+
     def goto_label(self, label):
         """
         Jumps to the address associated with the specified label.
@@ -186,6 +203,8 @@ class Memory:
             raise MemoryOverflowError("Data memory overflow")
 
     def check_memory_address(self, address):
+        if not isinstance(address, int):
+            raise InvalidMemoryAddrError("Invalid memory address, must be an integer")
         if address >= self.data_memory_size or address < 0 or address is None:
             raise InvalidMemoryAddrError("Data memory overflow")
         if address == self.keyboard_buffer_address:
