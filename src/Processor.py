@@ -18,6 +18,7 @@ class Processor:
 
     Methods:
     - __init__: Initializes the Processor object.
+    - set_file_name: Set the name of the file containing instructions to be executed.
     - execute_instruction: Executes a single instruction.
     - execute_program: Execute instructions from a file sequentially.
     - parse_instruction: Parses a single instruction and adds it to memory.
@@ -100,6 +101,16 @@ class Processor:
             'SHR': self.shr
         }
 
+    def set_file_name(self, file_name):
+        """
+        Set the name of the file containing instructions to be executed.
+
+        Parameters:
+        - file_name (str): The name of the file containing instructions.
+        """
+        self.file_name = file_name
+        self.is_file_parsed = False
+
     def execute_instruction(self, instruction):
         """
         Execute a single instruction. ( skips label instructions)
@@ -119,6 +130,9 @@ class Processor:
         Parameters:
         - file_name (str): The name of the file containing instructions to be executed.
         """
+        if self.file_name is None:
+            return
+
         if not self.is_file_parsed:
             self.parse_file(self.file_name)
 

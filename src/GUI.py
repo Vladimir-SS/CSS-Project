@@ -1,7 +1,9 @@
 import tkinter as tk
+from tkinter import filedialog
 from Screen import Screen
 from Keyboard import Keyboard
 from Processor import Processor
+from Memory import Memory
 
 class GUI:
     """
@@ -16,23 +18,24 @@ class GUI:
 
     Methods:
     - __init__: Initializes the GUI object.
+    - select_asm_file: Opens a file dialog to select an assembly file (*.asm).
     - run_program: Executes the program continuously by periodically calling the execute_program method of the processor.
     - create_keyboard_buttons: Creates buttons for keyboard input in the GUI.
     - create_button: Creates a single button widget for keyboard input.
     - key_press: Handles keyboard button presses and sends input to the Keyboard object.
     - update_screen: Updates the screen display based on the content of the video memory.
     """
-    def __init__(self, processor: Processor, keyboard: Keyboard, screen: Screen, buttons_per_row=16):
+    def __init__(self, memory: Memory, keyboard: Keyboard, screen: Screen, buttons_per_row=16):
         """
         Initializes the GUI object.
 
         Parameters:
-            processor (Processor): The Processor object responsible for executing instructions.
+            memory (Memory): The Memory object containing instruction and data memory.
             keyboard (Keyboard): The Keyboard object for simulating keyboard input.
             screen (Screen): The Screen object for displaying output.
             buttons_per_row (int): The number of buttons to display per row ( for keyboard input).
         """
-        self.processor = processor
+        self.processor = Processor(memory)
         self.keyboard = keyboard
         self.screen = screen
         self.buttons_per_row = buttons_per_row
@@ -53,9 +56,20 @@ class GUI:
         self.create_keyboard_buttons()
         self.processor.memory.set_keyboard_pointer(keyboard)
 
+        select_file_button = tk.Button(self.keyboard_frame, text="Select Assembly File", height=2, command=self.select_asm_file)
+        select_file_button.grid(row=2, column=self.buttons_per_row)
+
         self.run_program()
 
         self.root.mainloop()
+
+    def select_asm_file(self):
+        """
+        Opens a file dialog to select an assembly file. ( *.asm)
+        """
+        file_path = filedialog.askopenfilename(filetypes=[("Assembly files", "*.asm")])
+        if file_path:
+            self.processor.set_file_name(file_path)
 
     def run_program(self):
         """

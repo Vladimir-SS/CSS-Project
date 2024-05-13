@@ -67,9 +67,8 @@ def read_config_file(file_name):
 config = read_config_file('config.cfg')
 
 memory = Memory(config['instruction_memory_size'], config['data_memory_size'], config['keyboard_buffer'], config['video_memory_start'], config['video_memory_end'])
-program = Processor(memory, 'asm-example-file.txt')
 
-gui = GUI(program, Keyboard(), Screen(100, 16))
+gui = GUI(memory, Keyboard(), Screen(100, 16))
 
 print("\n\nDATA MEMORY: size:=", len(memory.data_memory))
 count = 0
@@ -79,6 +78,6 @@ for mem in memory.data_memory:
         print(count, ":", mem)
 
 print("INSTRUCTION MEMORY: ", memory.instruction_memory)
-print("REGISTERS VALUES: ", program.data_registers)
-print("STACK:", program.stack_pointer)
+print("REGISTERS VALUES: ", gui.processor.data_registers)
+print("STACK:", gui.processor.stack_pointer)
 print("LABELS:", memory.labels)

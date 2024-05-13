@@ -40,6 +40,7 @@ The keyboard buffer is allocated a single address - this address is part of the 
     - `input (str)`: Keyboard input string.
     - `input_destination (str)`: Destination operand for keyboard input.
 ##### Methods:
+- `set_file_name`: Set the name of the file containing instructions to be executed.
 - `execute_instruction(instruction)`: Executes a single instruction.
 - `execute_program(file_name)`: Execute instructions from a file sequentially.
 - `parse_instruction(instruction)`: Parses a single instruction from the program file and adds it to the instruction list. (in case of a label, it stores the label and its corresponding instruction index in the labels dictionary).
