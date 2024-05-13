@@ -167,6 +167,8 @@ class Processor:
             for line in file:
                 self.parse_instruction(line.strip())
 
+        self.is_file_parsed = True
+
     def parse_memory_operand(self, operand):
         """
         Parse a memory operand to determine if the address is specified by a constant value or by a data register.
@@ -528,12 +530,18 @@ class Processor:
 
         if operands:
             self.stack_pointer.append(operands[0])
+            self.program_counter = self.memory.goto_label(operands[0])
 
         print('CALL', operands)
 
     def ret(self, operands):
-        if operands:
-            self.program_counter = self.stack_pointer.pop()
+        if not self.stack_pointer:
+            print("Error: Stack is empty")
+            return
+
+        label = self.stack_pointer.pop()
+        if label:
+            self.program_counter = self.memory.goto_label(label)
 
         print('RET', operands)
 

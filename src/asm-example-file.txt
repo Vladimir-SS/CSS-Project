@@ -57,7 +57,6 @@ POP R2            ; Pop value from the stack and store in R2
 
 ; Function Call/Return
 CALL function1    ; Call function1
-RET               ; Return from function
 
 ; Unconditional Jump
 JMP end_program   ; Unconditional jump to the end of the program
