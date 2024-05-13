@@ -70,3 +70,15 @@ memory = Memory(config['instruction_memory_size'], config['data_memory_size'], c
 program = Processor(memory, 'asm-example-file.txt')
 
 gui = GUI(program, Keyboard(), Screen(100, 16))
+
+print("\n\nDATA MEMORY: size:=", len(memory.data_memory))
+count = 0
+for mem in memory.data_memory:
+    count += 1
+    if mem is not None:
+        print(count, ":", mem)
+
+print("INSTRUCTION MEMORY: ", memory.instruction_memory)
+print("REGISTERS VALUES: ", program.data_registers)
+print("STACK:", program.stack_pointer)
+print("LABELS:", memory.labels)
