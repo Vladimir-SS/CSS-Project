@@ -6,12 +6,15 @@ MOV M11, R3
 MOV M50, R1
 
 CMP R2, R3
-JG label
+CALL label
+MOV R7, #10
+MOV R7, #10
 MOV R7, #10
 
 label:
 MOV R6, #20
 MOV R5, #10
 MOV R4, #0
+RET
 
 end:

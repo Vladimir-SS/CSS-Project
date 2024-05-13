@@ -529,7 +529,7 @@ class Processor:
             return
 
         if operands:
-            self.stack_pointer.append(operands[0])
+            self.stack_pointer.append(self.program_counter)
             self.program_counter = self.memory.goto_label(operands[0])
 
         print('CALL', operands)
@@ -541,7 +541,10 @@ class Processor:
 
         label = self.stack_pointer.pop()
         if label:
-            self.program_counter = self.memory.goto_label(label)
+            if isinstance(label,int):
+                self.program_counter = label
+            else:
+                self.program_counter = self.memory.goto_label(label)
 
         print('RET', operands)
 
