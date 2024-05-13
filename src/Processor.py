@@ -89,8 +89,8 @@ class Processor:
             'PUSH': self.push,
             'POP': self.pop,
             # Function call/return
-            'CALL': self.call,
-            'RET': self.ret,
+                'CALL': self.call,
+                'RET': self.ret,
         # Boolean operations
             'NOT': self.not_op,
             'AND': self.and_op,
@@ -166,7 +166,6 @@ class Processor:
         with open(file_name, 'r') as file:
             for line in file:
                 self.parse_instruction(line.strip())
-        self.is_file_parsed = True
 
         self.is_file_parsed = True
 
