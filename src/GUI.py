@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog
-from Screen import Screen
-from Keyboard import Keyboard
-from Processor import Processor
-from Memory import Memory
+from src.Screen import Screen
+from src.Keyboard import Keyboard
+from src.Processor import Processor
+from src.Memory import Memory
+
 
 class GUI:
     """
@@ -25,6 +26,7 @@ class GUI:
     - key_press: Handles keyboard button presses and sends input to the Keyboard object.
     - update_screen: Updates the screen display based on the content of the video memory.
     """
+
     def __init__(self, memory: Memory, keyboard: Keyboard, screen: Screen, buttons_per_row=16):
         """
         Initializes the GUI object.
@@ -39,7 +41,7 @@ class GUI:
         self.keyboard = keyboard
         self.screen = screen
         self.buttons_per_row = buttons_per_row
-        self.interval = 500 # ms
+        self.interval = 500  # ms
 
         self.root = tk.Tk()
         self.root.title("Peripheral Devices Simulation")
@@ -56,7 +58,8 @@ class GUI:
         self.create_keyboard_buttons()
         self.processor.memory.set_keyboard_pointer(keyboard)
 
-        select_file_button = tk.Button(self.keyboard_frame, text="Select Assembly File", height=2, command=self.select_asm_file)
+        select_file_button = tk.Button(self.keyboard_frame, text="Select Assembly File", height=2,
+                                       command=self.select_asm_file)
         select_file_button.grid(row=2, column=self.buttons_per_row)
 
         self.run_program()
@@ -89,7 +92,8 @@ class GUI:
                 char_code = row * self.buttons_per_row + col + 32
                 char_str = chr(char_code)
                 if char_code < 127:
-                    self.create_button(char_str, int(ord(char_str) / self.buttons_per_row), ord(char_str) % self.buttons_per_row)
+                    self.create_button(char_str, int(ord(char_str) / self.buttons_per_row),
+                                       ord(char_str) % self.buttons_per_row)
 
         self.create_button('\r', 3, self.buttons_per_row, "Enter", width=12)
 
@@ -106,7 +110,8 @@ class GUI:
             height (int): The height of the button.
         """
         button_text = name if name else char_str
-        button = tk.Button(self.keyboard_frame, text=button_text, width=width, height=height, command=lambda c=char_str: self.key_press(c))
+        button = tk.Button(self.keyboard_frame, text=button_text, width=width, height=height,
+                           command=lambda c=char_str: self.key_press(c))
         button.grid(row=row, column=col)
 
     def key_press(self, char):

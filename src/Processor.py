@@ -1,3 +1,6 @@
+from src.Exceptions.DivisionByZeroException import DivisionByZeroException
+
+
 class Processor:
     """
     Emulates a processor with specified components and operations.
@@ -413,7 +416,7 @@ class Processor:
         if operand2 != 0:
             result = operand1 // operand2
         else:
-            print("Error: Division by zero")
+            raise DivisionByZeroException("Video memory address out of bounds")
             return
 
         self.store_result(operands[0], result)

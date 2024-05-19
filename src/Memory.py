@@ -1,5 +1,7 @@
-from Exceptions import MemoryOverflowError
-from Exceptions import InvalidMemoryAddrError
+from src.Exceptions.MemoryOverflowError import MemoryOverflowError
+from src.Exceptions.InvalidMemoryAddrError import InvalidMemoryAddrError
+
+
 class Memory:
     """
     Represents the memory component of the system.
@@ -35,9 +37,10 @@ class Memory:
         validate_memory_size: Validates the memory size.
     """
     MAX_MEMORY_SIZE = 65536  # Maximum memory size in bytes
-    MIN_MEMORY_SIZE = 1024   # Minimum memory size in bytes
+    MIN_MEMORY_SIZE = 1024  # Minimum memory size in bytes
 
-    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer_address, video_memory_start, video_memory_end):
+    def __init__(self, instruction_memory_size, data_memory_size, keyboard_buffer_address, video_memory_start,
+                 video_memory_end):
         """
         Initializes the Memory object.
 
@@ -124,7 +127,7 @@ class Memory:
         else:
             raise InvalidMemoryAddrError("Invalid instruction memory address")
 
-    def add_instruction(self, instruction, label = None):
+    def add_instruction(self, instruction, label=None):
         """
         Adds an instruction to the instruction memory.
 
@@ -194,7 +197,8 @@ class Memory:
             raise MemoryOverflowError("Instruction memory overflow")
 
     def check_instruction_memory_address(self, address):
-        if address >= self.instruction_memory_size or address < 0 or address is None or address >= len(self.instruction_memory):
+        if address >= self.instruction_memory_size or address < 0 or address is None or address >= len(
+                self.instruction_memory):
             return False
         return True
 
