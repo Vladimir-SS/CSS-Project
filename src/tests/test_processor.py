@@ -15,15 +15,19 @@ class TestProcessor(unittest.TestCase):
         processor = Processor(self.memory)
         self.assertIsNotNone(processor)
         self.assertEqual(len(processor.data_registers), 8)
-        self.assertEqual(processor.program_counter, None)
+        self.assertIsNone(processor.program_counter)
         self.assertEqual(processor.stack_pointer, [])
-        self.assertEqual(processor.is_file_parsed, False)
-        self.assertEqual(processor.is_reading_input, False)
+        self.assertFalse(processor.is_file_parsed)
+        self.assertFalse(processor.is_reading_input)
 
     def test_set_file_name(self):
         self.processor.set_file_name("test.asm")
         self.assertEqual(self.processor.file_name, "test.asm")
-        self.assertEqual(self.processor.is_file_parsed, False)
+        self.assertFalse(self.processor.is_file_parsed)
+
+    def test_execute_instruction_invalid_instruction(self):
+        with self.assertRaises(ValueError):
+            self.processor.execute_instruction(('INVALID', []))
 
     def test_execute_instruction_mov(self):
         self.processor.data_registers[0] = 123
