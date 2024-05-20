@@ -131,4 +131,12 @@ python -m unittest # in the root directory
 # or
 pip install pytest
 pytest # in the root directory
+
+# For coverage
+coverage run -m pytest
+coverage report
+coverage html
+# or
+pip install pytest-cov
+pytest --cov=src tests/ # to check coverage
 ```
