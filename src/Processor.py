@@ -35,6 +35,7 @@ class Processor:
     - get_memory_data: Gets the value of a memory operand. ( starts reading input if keyboard buffer is accessed)
     - convert_keyboard_input: Converts keyboard input to a numerical value or ASCII value.
     """
+
     def __init__(self, memory, file_name=None):
         """
         Initializes the Processor object.
@@ -52,16 +53,19 @@ class Processor:
         """
         self.data_registers = [0 for _ in range(8)]
         self.flags = {
-            'CF': False,  # Carry Flag: is set when an arithmetic operation generates a carry or borrows from the most significant bit; used in testing for overflow in signed integer arithmetic
-            'PF': False,  # Parity Flag: is set only when the least significant byte of the result has an even number of 1 bits
+            'CF': False,
+            # Carry Flag: is set when an arithmetic operation generates a carry or borrows from the most significant bit; used in testing for overflow in signed integer arithmetic
+            'PF': False,
+            # Parity Flag: is set only when the least significant byte of the result has an even number of 1 bits
             'ZF': False,  # Zero Flag: is set when the result of an operation is 0
-            'SF': False,  # Sign Flag: holds the value of the most significant bit of the result; indicates the sign of a signed integer (0 = positive, 1 = negative)
-            'OF': False   # Overflow Flag: is set when an overflow occurs in signed integer arithmetic
+            'SF': False,
+            # Sign Flag: holds the value of the most significant bit of the result; indicates the sign of a signed integer (0 = positive, 1 = negative)
+            'OF': False  # Overflow Flag: is set when an overflow occurs in signed integer arithmetic
         }
         # Special-purpose registers
         self.program_counter = None
         self.stack_pointer = []
-        self.memory = memory # Memory "pointer" - used to access memory without overcomplicating the memory class by making it static
+        self.memory = memory  # Memory "pointer" - used to access memory without overcomplicating the memory class by making it static
 
         # Helper variables
         self.is_file_parsed = False
@@ -72,16 +76,16 @@ class Processor:
         self.input_destination = None
 
         self.instruction_types = {
-        # Assignment
+            # Assignment
             'MOV': self.mov,
-        # Arithmetic operations
+            # Arithmetic operations
             'ADD': self.add,
             'SUB': self.sub,
             'MUL': self.mul,
             'DIV': self.div,
-        # Comparison
+            # Comparison
             'CMP': self.cmp,
-        # Jumps
+            # Jumps
             'JMP': self.jmp,
             'JE': self.je,
             'JNE': self.jne,
@@ -89,13 +93,13 @@ class Processor:
             'JL': self.jl,
             'JGE': self.jge,
             'JLE': self.jle,
-        # Stack operations
+            # Stack operations
             'PUSH': self.push,
             'POP': self.pop,
             # Function call/return
-                'CALL': self.call,
-                'RET': self.ret,
-        # Boolean operations
+            'CALL': self.call,
+            'RET': self.ret,
+            # Boolean operations
             'NOT': self.not_op,
             'AND': self.and_op,
             'OR': self.or_op,
@@ -121,7 +125,7 @@ class Processor:
         Parameters:
         - instruction (tuple): A tuple containing the instruction type and operands.
         """
-        if instruction is None: # Skip labels
+        if instruction is None:  # Skip labels
             return
         instruction_type, operands = instruction
         self.instruction_types[instruction_type](operands)
@@ -149,7 +153,6 @@ class Processor:
         if self.memory.check_instruction_memory_address(self.program_counter):
             self.execute_instruction(self.memory.get_instruction(self.program_counter))
             self.program_counter += 1
-
 
     def parse_instruction(self, instruction):
         """
@@ -219,7 +222,6 @@ class Processor:
         if index < 0 or index >= len(self.data_registers):
             raise ValueError("Invalid register index")
 
-
     def get_operand_value(self, operand):
         """
         Get the value of an operand based on its type. ( ensures 16-bit width of operands)
@@ -274,7 +276,7 @@ class Processor:
         - int: The truncated 16-bit value.
         """
         max_value_16bit = (1 << 15) - 1  # Maximum value of a 16-bit signed integer (32767)
-        min_value_16bit = -(1 << 15)     # Minimum value of a 16-bit signed integer (-32768)
+        min_value_16bit = -(1 << 15)  # Minimum value of a 16-bit signed integer (-32768)
 
         if value > max_value_16bit:
             print("Warning: Value exceeds the maximum 16-bit signed integer. Truncated to fit within 16 bits.")
@@ -293,7 +295,7 @@ class Processor:
             keyboard = self.memory.get_keyboard_pointer()
             while keyboard.has_characters():
                 char = keyboard.get_next_character()
-                if char == 13: # Enter key
+                if char == 13:  # Enter key
                     self.is_reading_input = False
                     print('Input:', self.input)
                     self.store_result(self.input_destination, self.convert_keyboard_input(self.input))
@@ -333,7 +335,7 @@ class Processor:
         if keyboard_input.isdigit():
             return int(keyboard_input)
         elif len(keyboard_input) == 1:
-            return ord(keyboard_input) # Return ASCII value for single characters
+            return ord(keyboard_input)  # Return ASCII value for single characters
         else:
             return -1
 
@@ -558,7 +560,7 @@ class Processor:
 
         label = self.stack_pointer.pop()
         if label:
-            if isinstance(label,int):
+            if isinstance(label, int):
                 self.program_counter = label
             else:
                 self.program_counter = self.memory.goto_label(label)
@@ -567,9 +569,7 @@ class Processor:
 
     def not_op(self, operands):
         if len(operands) != 1:
-            print("Error: NOT instruction requires one operand")
-            return
-
+            raise ValueError("NOT instruction requires one operand")
         operand = self.get_operand_value(operands[0])
         result = ~operand & 0xFFFFFFFF
         self.store_result(operands[0], result)
@@ -577,9 +577,7 @@ class Processor:
 
     def and_op(self, operands):
         if len(operands) != 2:
-            print("Error: AND instruction requires two operands")
-            return
-
+            raise ValueError("AND instruction requires two operands")
         operand1 = self.get_operand_value(operands[0])
         operand2 = self.get_operand_value(operands[1])
         result = operand1 & operand2
@@ -588,9 +586,7 @@ class Processor:
 
     def or_op(self, operands):
         if len(operands) != 2:
-            print("Error: OR instruction requires two operands")
-            return
-
+            raise ValueError("OR instruction requires two operands")
         operand1 = self.get_operand_value(operands[0])
         operand2 = self.get_operand_value(operands[1])
         result = operand1 | operand2
@@ -599,9 +595,7 @@ class Processor:
 
     def xor_op(self, operands):
         if len(operands) != 2:
-            print("Error: XOR instruction requires two operands")
-            return
-
+            raise ValueError("XOR instruction requires two operands")
         operand1 = self.get_operand_value(operands[0])
         operand2 = self.get_operand_value(operands[1])
         result = operand1 ^ operand2

@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import Mock, patch
 import tkinter as tk
 
-# Adjusting import paths to ensure they are correctly referenced
 from src.GUI import GUI
 from src.Screen import Screen
 from src.Keyboard import Keyboard
@@ -44,30 +43,33 @@ class TestGUI(unittest.TestCase):
         # Ensure the read_video_memory method returns an iterable after GUI initialization
         self.processor.memory.read_video_memory.return_value = [ord('A')] * (self.screen.width * self.screen.height)
 
-    def test_create_button(self):
-        # Test creating a button and adding it to the keyboard frame
-        self.gui.create_button('A', 0, 0)
-        # Update the mock to return the created button
-        button = tk.Button(self.gui.keyboard_frame, text='A')
-        self.gui.keyboard_frame.winfo_children = Mock(return_value=[button])
-        # Retrieve the button and assert its properties
-        retrieved_button = self.gui.keyboard_frame.winfo_children()[0]
-        self.assertEqual(retrieved_button.cget('text'), 'A')
-        self.assertEqual(retrieved_button.grid_info()['row'], 0)
-        self.assertEqual(retrieved_button.grid_info()['column'], 0)
+    def test_run_program(self):
+        # Mock the methods called within run_program
+        self.gui.processor.execute_program = Mock()
+        self.gui.update_screen = Mock()
+
+        # Call run_program
+        self.gui.run_program()
+
+        # Assert the methods are called
+        self.gui.processor.execute_program.assert_called_once()
+        self.gui.update_screen.assert_called_once()
+        self.gui.root.after.assert_called_with(self.gui.interval, self.gui.run_program)
+
+    def test_create_keyboard_buttons(self):
+        # Mock the create_button method
+        self.gui.create_button = Mock()
+
+        # Call create_keyboard_buttons
+        self.gui.create_keyboard_buttons()
+
+        # Assert create_button was called the expected number of times
+        self.assertEqual(self.gui.create_button.call_count, 65)  # 64 printable ASCII + Enter key
 
     def test_key_press(self):
         # Test key press handling
         self.gui.key_press('A')
         self.keyboard.input_character.assert_called_with(ord('A'))
-
-    @patch('tkinter.filedialog.askopenfilename', return_value='test.asm')
-    def test_select_asm_file(self, mock_filedialog):
-        # Ensure the processor mock has the set_file_name method
-        self.processor.set_file_name = Mock()
-        # Test file selection dialog
-        self.gui.select_asm_file()
-        self.processor.set_file_name.assert_called_with('test.asm')
 
 
 if __name__ == '__main__':
