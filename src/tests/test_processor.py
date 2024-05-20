@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from src.Exceptions.DivisionByZeroException import DivisionByZeroException
+from src.exceptions.DivisionByZeroException import DivisionByZeroException
 from src.Processor import Processor
 from src.Memory import Memory
 

@@ -1,4 +1,4 @@
-from src.Exceptions.DivisionByZeroException import DivisionByZeroException
+from exceptions.DivisionByZeroException import DivisionByZeroException
 
 
 class Processor:

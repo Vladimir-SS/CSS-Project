@@ -117,3 +117,18 @@ The keyboard buffer is allocated a single address - this address is part of the 
   - Data registers: `R0`, `R1`, `R2`, `R3`, `R4`, `R5`, `R6`, `R7`
   - Memory locations: `M<value>/<register>`
   - Constant values: `#<value>`
+
+## Unit tests
+### Setup on Windows PowerShell
+```bash
+ $env:PYTHONPATH += ";C:\Users\path\to\project\src"
+ $env:PYTHONPATH # to check if the path is added
+```
+
+### Run tests
+```bash
+python -m unittest # in the root directory
+# or
+pip install pytest
+pytest # in the root directory
+```
