@@ -115,6 +115,8 @@ class Processor:
         Parameters:
         - file_name (str): The name of the file containing instructions.
         """
+        assert isinstance(file_name, str), "File name must be a string"
+
         self.file_name = file_name
         self.is_file_parsed = False
 
@@ -128,6 +130,9 @@ class Processor:
         if instruction is None:  # Skip labels
             return
         instruction_type, operands = instruction
+
+        assert instruction_type in self.instruction_types, "Unknown instruction type"
+
         self.instruction_types[instruction_type](operands)
 
     def execute_program(self):

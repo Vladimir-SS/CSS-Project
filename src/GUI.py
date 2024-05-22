@@ -8,6 +8,11 @@ from Memory import Memory
 
 class GUI:
     def __init__(self, memory: Memory, keyboard: Keyboard, screen: Screen, buttons_per_row=16):
+        assert isinstance(memory, Memory), "memory should be an instance of Memory"
+        assert isinstance(keyboard, Keyboard), "keyboard should be an instance of Keyboard"
+        assert isinstance(screen, Screen), "screen should be an instance of Screen"
+        assert isinstance(buttons_per_row, int) and buttons_per_row > 0, "buttons_per_row should be a positive integer"
+
         self.processor = Processor(memory)
         self.keyboard = keyboard
         self.screen = screen
@@ -43,6 +48,8 @@ class GUI:
             self.processor.set_file_name(file_path)
 
     def run_program(self):
+        assert self.processor is not None, "Processor must be initialized"
+
         self.processor.execute_program()
         self.update_screen()
         self.root.after(self.interval, self.run_program)
@@ -59,19 +66,29 @@ class GUI:
         self.create_button('\r', 3, self.buttons_per_row, "Enter", width=12)
 
     def create_button(self, char_str, row, col, name=None, width=5, height=2):
+        assert isinstance(char_str, str) and len(char_str) == 1, "char_str should be a single character string"
+        assert isinstance(row, int) and row >= 0, "row should be a non-negative integer"
+        assert isinstance(col, int) and col >= 0, "col should be a non-negative integer"
+
         button_text = name if name else char_str
         button = tk.Button(self.keyboard_frame, text=button_text, width=width, height=height,
                            command=lambda c=char_str: self.key_press(c))
         button.grid(row=row, column=col)
 
     def key_press(self, char):
+        assert isinstance(char, str) and len(char) == 1, "char should be a single character string"
+
         self.keyboard.input_character(ord(char))
 
     def update_screen(self):
         self.screen_text.delete(1.0, tk.END)
         video_memory = self.processor.memory.read_video_memory()
+
+        assert isinstance(video_memory, list), "video_memory should be a list"
+
         for i, char_code in enumerate(video_memory):
             if char_code is not None:
+                assert isinstance(char_code, int) and 0 <= char_code < 256, "char_code should be an integer between 0 and 255"
                 self.screen_text.insert(tk.END, chr(char_code))
             if (i + 1) % self.screen.width == 0:
                 self.screen_text.insert(tk.END, '\n')
