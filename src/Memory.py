@@ -1,5 +1,5 @@
-from src.Exceptions.MemoryOverflowError import MemoryOverflowError
-from src.Exceptions.InvalidMemoryAddrError import InvalidMemoryAddrError
+from exceptions.MemoryOverflowError import MemoryOverflowError
+from exceptions.InvalidMemoryAddrError import InvalidMemoryAddrError
 
 
 class Memory:

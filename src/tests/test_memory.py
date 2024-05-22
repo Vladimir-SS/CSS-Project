@@ -1,7 +1,7 @@
 import unittest
 from src.Memory import Memory
-from src.Exceptions.MemoryOverflowError import MemoryOverflowError
-from src.Exceptions.InvalidMemoryAddrError import InvalidMemoryAddrError
+from src.exceptions.MemoryOverflowError import MemoryOverflowError
+from src.exceptions.InvalidMemoryAddrError import InvalidMemoryAddrError
 
 
 class TestMemory(unittest.TestCase):

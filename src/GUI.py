@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
-from src.Screen import Screen
-from src.Keyboard import Keyboard
-from src.Processor import Processor
-from src.Memory import Memory
+from Screen import Screen
+from Keyboard import Keyboard
+from Processor import Processor
+from Memory import Memory
 
 
 class GUI:
