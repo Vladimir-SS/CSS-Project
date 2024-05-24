@@ -54,6 +54,12 @@ class Memory:
         Raises:
             InvalidMemoryAddrError: If keyboard buffer or video memory address is out of bounds.
         """
+        assert isinstance(instruction_memory_size, int) and instruction_memory_size > 0
+        assert isinstance(data_memory_size, int) and data_memory_size > 0
+        assert isinstance(keyboard_buffer_address, int) and keyboard_buffer_address >= 0
+        assert isinstance(video_memory_start, int) and video_memory_start >= 0
+        assert isinstance(video_memory_end, int) and video_memory_end >= 0
+
         self.validate_memory_size(instruction_memory_size)
         self.validate_memory_size(data_memory_size)
 
@@ -79,6 +85,12 @@ class Memory:
         # Additional helper variables
         self.labels = {}
 
+        assert self.data_memory_size > 0
+        assert len(self.data_memory) == self.data_memory_size
+        assert self.keyboard_buffer_address < self.data_memory_size
+        assert self.video_memory_start < self.data_memory_size
+        assert self.video_memory_end < self.data_memory_size
+
     def set_keyboard_pointer(self, ptr):
         """
         Sets the pointer to the Keyboard instance in the keyboard buffer.
@@ -87,6 +99,8 @@ class Memory:
             ptr: Keyboard instance to be set in the keyboard buffer.
         """
         self.data_memory[self.keyboard_buffer_address] = ptr
+
+        assert self.data_memory[self.keyboard_buffer_address] == ptr
 
     def get_keyboard_pointer(self):
         """
@@ -122,6 +136,8 @@ class Memory:
         Raises:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
+        assert isinstance(address, int) and address >= 0 and address < self.instruction_memory_size, "Invalid instruction memory address in get_instruction"
+
         if self.check_instruction_memory_address(address):
             return self.instruction_memory[address]
         else:
@@ -135,8 +151,13 @@ class Memory:
             instruction: Instruction to be added.
             label (str): Optional label associated with the instruction.
         """
+        assert len(self.instruction_memory) < self.instruction_memory_size
+
         self.check_instruction_memory_overflow(len(self.instruction_memory))
         self.instruction_memory.append(instruction)
+
+        assert self.instruction_memory[-1] == instruction
+
         if label is not None:
             self.labels[label] = len(self.instruction_memory) - 1
 
@@ -151,11 +172,15 @@ class Memory:
         Raises:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
+        assert isinstance(address, int) and address >= 0 and address < self.data_memory_size, "Invalid data memory address in set_data"
+
         self.check_memory_address(address)
         if address >= self.video_memory_start and address <= self.video_memory_end:
             value = value & 0xFF  # Limit value to 8 bits for video memory (0-255)
 
         self.data_memory[address] = value
+
+        assert self.data_memory[address] == value
 
     def get_data(self, address):
         """
@@ -170,6 +195,8 @@ class Memory:
         Raises:
             InvalidMemoryAddrError: If the address is out of bounds.
         """
+        assert isinstance(address, int) and address >= 0 and address < self.data_memory_size, "Invalid data memory address in get_data"
+
         self.check_memory_address(address)
         return self.data_memory[address]
 
@@ -224,5 +251,7 @@ class Memory:
         Raises:
             ValueError: If the size is not a multiple of 1 KB or exceeds the maximum size.
         """
+        assert isinstance(size, int) and size > 0
+
         if size % Memory.MIN_MEMORY_SIZE != 0 or size > Memory.MAX_MEMORY_SIZE:
             raise ValueError("Memory size must be a multiple of 1 KB (1024 bytes) and not exceed 65536 bytes")

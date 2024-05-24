@@ -1,3 +1,4 @@
+import os
 from exceptions.DivisionByZeroException import DivisionByZeroException
 
 
@@ -166,6 +167,9 @@ class Processor:
         Parameters:
         - instruction (str): A single instruction in assembly-like language.
         """
+        assert isinstance(instruction, str), "Instruction must be a string"
+        assert self.memory is not None, "Memory must be initialized"
+
         if instruction.startswith(';') or instruction == '':
             return
 
@@ -188,6 +192,10 @@ class Processor:
         Parameters:
         - file_name (str): Name of the file containing instructions.
         """
+        assert isinstance(file_name, str), "File name must be a string"
+        assert file_name.endswith('.asm'), "Invalid file format. Must be an assembly file (.asm)"
+        assert os.path.isfile(file_name), f"File {file_name} does not exist"
+
         with open(file_name, 'r') as file:
             for line in file:
                 self.parse_instruction(line.strip())
@@ -280,6 +288,8 @@ class Processor:
         Returns:
         - int: The truncated 16-bit value.
         """
+        assert isinstance(value, int), "Value must be an integer"
+
         max_value_16bit = (1 << 15) - 1  # Maximum value of a 16-bit signed integer (32767)
         min_value_16bit = -(1 << 15)  # Minimum value of a 16-bit signed integer (-32768)
 
