@@ -1,6 +1,6 @@
-## Terms definitions
+# Terms definitions
 
-- `Registor` = Small, fast storage locations directly within the CPU, used to hold temporary data that the processor needs during the execution of programs, such as operands for arithmetic operations, address pointers for accessing memory, or intermediate results and special states of the machine. These registers are much faster to access than main memory, which is why processors use them for immediate operations.
+- `Register` = Small, fast storage locations directly within the CPU, used to hold temporary data that the processor needs during the execution of programs, such as operands for arithmetic operations, address pointers for accessing memory, or intermediate results and special states of the machine. These registers are much faster to access than main memory, which is why processors use them for immediate operations.
 - `Conditional Flags` = Used for decision-making (e.g., comparison results), reflecting how real CPUs manage operations and control flow. They are set or cleared after the outcome of each operation. [More about conditional flags](http://unixwiz.net/techtips/x86-jumps.html)
 ```python
 self.flags = {
@@ -15,16 +15,16 @@ self.flags = {
 - `Program Counter (PC)`: Points to the next instruction to execute.
 - `Stack Pointer (SP)`: Points to the current top of the stack in memory, used for push/pop operations. More about [stack in assembly](https://www.cs.ubbcluj.ro/~vancea/asc/stack_in_assembly.php)
 
-## Main classes
+# Main classes
 
-### Processor
+## Processor
 - holds data registers and flags
 - executes instructions (assignment, addition, substraction, multiplication, division, boolean op, comparison, jumps, push/pop and function call/return using a part of memory as stack)
 
 The processor reads and parses the entire instruction set from the file and stores it in the instruction memory at the start. During execution, the processor fetches each instruction based on the program counter (PC), processes it, and then moves to the next one.
 
 The keyboard buffer is allocated a single address - this address is part of the data memory and is **checked by the processor** to see if there's any new input (the processor will periodically check this address to see if it contains any new data (non-zero value), process the data if present, and then reset the buffer).
-#### Attributes:
+### Attributes:
 - `data_registers`: List to store the values of the 8 data registers.
 - `flags`: Dictionary to store the values of conditional flags (CF, PF, ZF, SF, OF).
 - Special registers:
@@ -39,7 +39,7 @@ The keyboard buffer is allocated a single address - this address is part of the 
     - `is_reading_input (bool)`: Indicates whether the processor is waiting for keyboard input.
     - `input (str)`: Keyboard input string.
     - `input_destination (str)`: Destination operand for keyboard input.
-##### Methods:
+### Methods:
 - `set_file_name`: Set the name of the file containing instructions to be executed.
 - `execute_instruction(instruction)`: Executes a single instruction.
 - `execute_program(file_name)`: Execute instructions from a file sequentially.
@@ -53,21 +53,21 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `reading_input`: Handles keyboard input.
 - `get_memory_data(operand, destination)`: Gets the value of a memory operand. (starts reading input if keyboard buffer is accessed)
 - `convert_keyboard_input(keyboard_input)`: Converts keyboard input to a numerical value or ASCII value.
-- Methods for various instruction types such as `mov`, `add`, `sub`, `mul`, `div`, `cmp`, `jmp`, `je`, `jne`, `jg`, `jl`, `jge`, `jle`, `push`, `pop`, `call`, `ret`.
-------------------------------------
-### Memory
+- Methods for various instruction types such as `mov`, `add`, `sub`, `mul`, `div`, `cmp`, `jmp`, `je`, `jne`, `jg`, `jl`, `jge`, `jle`, `push`, `pop`, `call`, `ret`, `not_op`, `and_op`, `or_op`, `xor_op`, `shl`, `shr`.
+
+## Memory
 - stores both instruction and data memory
 - handles read/write operations
-##### Attributes:
+### Attributes:
 - `MAX_MEMORY_SIZE`: Maximum memory size in bytes.
 - `MIN_MEMORY_SIZE`: Minimum memory size in bytes.
 - `instruction_memory`: List to store program instructions.
 - `data_memory`: List to store data, including special areas for peripherals.
+- `keyboard_buffer_address`: Address of the keyboard buffer.
 - `video_memory_start`: Start address of video memory.
 - `video_memory_end`: End address of video memory.
-- `keyboard_buffer`: Address of the keyboard buffer.
 - `labels`: Dictionary to store labels and their corresponding addresses.
-#### Methods:
+### Methods:
 - `set_keyboard_pointer(ptr)`: Sets the pointer to the Keyboard instance in the keyboard buffer.
 - `get_keyboard_pointer`: Gets the Keyboard instance from the keyboard buffer.
 - `read_video_memory()`: Reads the content of video memory.
@@ -76,16 +76,87 @@ The keyboard buffer is allocated a single address - this address is part of the 
 - `set_data(address, value)`: Sets data at the specified address in data memory.
 - `get_data(address)`: Gets data from the specified address in data memory.
 - `goto_label(label)`: Jumps to the address associated with the specified label.
+#### Memory validation methods:
 - `check_instruction_memory_overflow(address)`: Checks for overflow in instruction memory.
 - `check_instruction_memory_address(address)`: Checks if the address is within bounds of instruction memory.
 - `check_data_memory_overflow(address)`: Checks for overflow in data memory.
 - `check_memory_address(address)`: Checks if the address is within bounds of data memory.
 - `validate_memory_size(size)`: Validates the memory size.
 
--------------------------------------
+## Keyboard
+
+Represents a simulated keyboard peripheral device.
+
+### Attributes:
+- `key_queue (deque)`: A queue to store characters pressed on the keyboard.
+
+### Methods:
+- `input_character(character)`: Simulates inputting a character into the keyboard buffer.
+- `get_next_character()`: Retrieves the next character from the keyboard buffer.
+- `has_characters()`: Checks if there are characters in the keyboard buffer.
+
+## Screen
+
+Represents a screen simulated by video memory.
+
+### Attributes:
+- `width (int)`: The width of the screen.
+- `height (int)`: The height of the screen.
+
+### Methods:
+- `__init__(width, height)`: Initializes the Screen object with the specified width and height.
+
+## GUI
+
+Represents the graphical user interface for simulating peripheral devices.
+
+### Attributes:
+- `processor`: Instance of the Processor class.
+- `keyboard`: Instance of the Keyboard class.
+- `screen`: Instance of the Screen class.
+- `buttons_per_row (int)`: Number of buttons per row in the keyboard frame.
+- `interval (int)`: Time interval in milliseconds for updating the screen.
+- `root`: Tkinter root window.
+- `screen_frame`: Frame containing the screen display.
+- `screen_text`: Text widget displaying the screen content.
+- `keyboard_frame`: Frame containing the keyboard buttons.
+
+### Methods:
+- `__init__(memory, keyboard, screen, buttons_per_row=16)`: Initializes the GUI with memory, keyboard, and screen instances.
+- `select_asm_file()`: Opens a file dialog to select an assembly file.
+- `run_program()`: Executes the program loaded in the processor and updates the screen.
+- `create_keyboard_buttons()`: Creates keyboard buttons for character input.
+- `create_button(char_str, row, col, name=None, width=5, height=2)`: Creates a button with the specified character, row, column, name, width, and height.
+- `key_press(char)`: Handles keyboard button press events.
+- `update_screen()`: Updates the screen display with the content from video memory.
+
+## Custom Exceptions classes
+
+### `DivisionByZeroException`
+- Raised when a division operation is attempted with a divisor of zero.
+### `InvalidMemoryAddrError`
+- Raised when an invalid memory address is accessed.
+### `MemoryOverflowError`
+- Raised when memory overflow occurs.
+
+
+# Brief User Manual
+
+## Installation
+- Clone the repository: `git clone https://github.com/Vladimir-SS/CSS-Project.git`
+- Run the program: `python ./src/main.py`
+
+## Usage
+- The program reads instructions from a file and executes them sequentially.
+- The instructions are written in an assembly-like language syntax. To execute instructions, select a file containing the instructions by pressing the "Select Assembly File" button. (The file must have `.asm` extension to be visible in the file selection dialog). [See below](#assembly-like-language-syntax) for supported instructions.
+- You can change the `./src/config.cfg` file to modify the memory sizes and special memory locations. Make sure to maintain the same format.
+- The program will show on the screen any data found in the video memory.
+- The UI keyboard saves the input and whenever a read instruction (e.g., `MOV R0, M<keyboard_buffer_memory_location>`) is executed, the program will read the input from the keyboard waiting for an enter key press.
+
 ## Assembly-Like Language Syntax
 
-- **Assigment:** `MOV destination, source`
+The program supports a simplified assembly-like language with the following instructions:
+- **Assignment:** `MOV destination, source`
 - **Arithmetic operations:**
   - `ADD destination, source`
   - `SUB destination, source`
@@ -118,6 +189,8 @@ The keyboard buffer is allocated a single address - this address is part of the 
   - Memory locations: `M<value>/<register>`
   - Constant values: `#<value>`
 
+### There are also 2 example files in the `./src` directory `asm-example-file.asm` and `asm-example-file-2.asm` that you can use to test the program.
+
 ## Unit tests
 ### Setup on Windows PowerShell
 ```bash
@@ -140,3 +213,15 @@ coverage html
 pip install pytest-cov
 pytest --cov=src tests/ # to check coverage
 ```
+
+# Contributors
+
+
+- Berea Manuela-Mihaela
+  - Contribution:
+- Neculea Gabriela
+  - Contribution:
+- Popa Bianca-Ştefana
+  - Contribution:
+- Sbârcea Ștefan-Vladimir
+  - Contribution:

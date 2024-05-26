@@ -434,7 +434,6 @@ class Processor:
             result = operand1 // operand2
         else:
             raise DivisionByZeroException("Video memory address out of bounds")
-            return
 
         self.store_result(operands[0], result)
         print('DIV', operands)
