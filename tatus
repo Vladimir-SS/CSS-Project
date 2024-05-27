@@ -1,0 +1,53 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 122ea77..25c81f2 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -191,7 +191,11 @@[m [mThe program supports a simplified assembly-like language with the following inst[m
+ [m
+ ### There are also 2 example files in the `./src` directory `asm-example-file.asm` and `asm-example-file-2.asm` that you can use to test the program.[m
+ [m
+[31m-## Unit tests[m
+[32m+[m[32m# Unit tests[m
+[32m+[m
+[32m+[m[32m- The unit tests are written using the `unittest` library.[m
+[32m+[m[32m- The test files are located in the `tests` directory. And the test files are named after the classes they test (e.g., `test_processor.py` for the Processor class).[m
+[32m+[m
+ ### Setup on Windows PowerShell[m
+ ```bash[m
+  $env:PYTHONPATH += ";C:\Users\path\to\project\src"[m
+[36m@@ -214,14 +218,29 @@[m [mpip install pytest-cov[m
+ pytest --cov=src tests/ # to check coverage[m
+ ```[m
+ [m
+[32m+[m[32m# Assertions[m
+[32m+[m
+[32m+[m[32m- Since most of the program already had custom assertions to check the preconditions and assure the correct behavior, we added only a few more to check the correctness of the program execution.[m
+[32m+[m
+[32m+[m[32m## Methods that check the preconditions[m
+[32m+[m[32m- Processor class - `check_register_index(index)`: Checks if the given index is a valid register index.[m
+[32m+[m[32m- Processor class - `assert_16_bit(value)`: Truncates a value to fit within 16 bits.[m
+[32m+[m[32m- Memory class - `check_instruction_memory_overflow(address)`: Checks for overflow in instruction memory.[m
+[32m+[m[32m- Memory class - `check_instruction_memory_address(address)`: Checks if the address is within bounds of instruction memory.[m
+[32m+[m[32m- Memory class - `check_data_memory_overflow(address)`: Checks for overflow in data memory.[m
+[32m+[m[32m- Memory class - `check_memory_address(address)`: Checks if the address is within bounds of data memory.[m
+[32m+[m[32m- Memory class - `validate_memory_size(size)`: Validates the memory size.[m
+[32m+[m
+ # Contributors[m
+ [m
+ [m
+ - Berea Manuela-Mihaela[m
+[31m-  - Contribution:[m
+[32m+[m[32m  - Contribution: Memory[m
+ - Neculea Gabriela[m
+[31m-  - Contribution:[m
+[32m+[m[32m  - Contribution: Processor[m
+ - Popa Bianca-Ştefana[m
+[31m-  - Contribution:[m
+[32m+[m[32m  - Contribution: Processor[m
+ - Sbârcea Ștefan-Vladimir[m
+[31m-  - Contribution:[m
+\ No newline at end of file[m
+[32m+[m[32m  - Contribution: GUI, Keyboard, Screen[m
+[32m+[m
+[32m+[m[32m- **Note:** Each team member contributed to the documentation and the tests based on the classes they implemented.[m
+\ No newline at end of file[m

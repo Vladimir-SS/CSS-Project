@@ -191,7 +191,11 @@ The program supports a simplified assembly-like language with the following inst
 
 ### There are also 2 example files in the `./src` directory `asm-example-file.asm` and `asm-example-file-2.asm` that you can use to test the program.
 
-## Unit tests
+# Unit tests
+
+- The unit tests are written using the `unittest` library.
+- The test files are located in the `tests` directory. And the test files are named after the classes they test (e.g., `test_processor.py` for the Processor class).
+
 ### Setup on Windows PowerShell
 ```bash
  $env:PYTHONPATH += ";C:\Users\path\to\project\src"
@@ -214,14 +218,29 @@ pip install pytest-cov
 pytest --cov=src tests/ # to check coverage
 ```
 
+# Assertions
+
+- Since most of the program already had custom assertions to check the preconditions and assure the correct behavior, we added only a few more to check the correctness of the program execution.
+
+## Methods that check the preconditions
+- Processor class - `check_register_index(index)`: Checks if the given index is a valid register index.
+- Processor class - `assert_16_bit(value)`: Truncates a value to fit within 16 bits.
+- Memory class - `check_instruction_memory_overflow(address)`: Checks for overflow in instruction memory.
+- Memory class - `check_instruction_memory_address(address)`: Checks if the address is within bounds of instruction memory.
+- Memory class - `check_data_memory_overflow(address)`: Checks for overflow in data memory.
+- Memory class - `check_memory_address(address)`: Checks if the address is within bounds of data memory.
+- Memory class - `validate_memory_size(size)`: Validates the memory size.
+
 # Contributors
 
 
 - Berea Manuela-Mihaela
-  - Contribution:
+  - Contribution: Memory
 - Neculea Gabriela
-  - Contribution:
+  - Contribution: Processor
 - Popa Bianca-Ştefana
-  - Contribution:
+  - Contribution: Processor
 - Sbârcea Ștefan-Vladimir
-  - Contribution:
+  - Contribution: GUI, Keyboard, Screen
+
+- **Note:** Each team member contributed to the documentation and the tests based on the classes they implemented.
