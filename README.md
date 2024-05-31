@@ -218,6 +218,26 @@ pip install pytest-cov
 pytest --cov=src tests/ # to check coverage
 ```
 
+### Coverage
+| Name                                        | Stmts | Miss | Cover |
+|---------------------------------------------|-------|------|-------|
+| src\GUI.py                                  | 68    | 53   | 22%   |
+| src\Keyboard.py                             | 12    | 1    | 92%   |
+| src\Memory.py                               | 89    | 10   | 89%   |
+| src\Processor.py                            | 329   | 76   | 77%   |
+| src\Screen.py                               | 4     | 0    | 100%  |
+| src\__init__.py                             | 0     | 0    | 100%  |
+| src\exceptions\DivisionByZeroException.py   | 3     | 0    | 100%  |
+| src\exceptions\MemoryOverflowError.py       | 3     | 0    | 100%  |
+| src\exceptions\__init__.py                  | 0     | 0    | 100%  |
+| src\tests\__init__.py                       | 0     | 0    | 100%  |
+| src\tests\test_gui.py                       | 44    | 16   | 64%   |
+| src\tests\test_keyboard.py                  | 15    | 1    | 93%   |
+| src\tests\test_memory.py                    | 75    | 5    | 93%   |
+| src\tests\test_processor.py                 | 290   | 2    | 99%   |
+| src\tests\test_screen.py                    | 9     | 1    | 89%   |
+| TOTAL                                       | 944   | 165  | 83%   |
+
 # Assertions
 
 - Since most of the program already had custom assertions to check the preconditions and assure the correct behavior, we added only a few more to check the correctness of the program execution.
