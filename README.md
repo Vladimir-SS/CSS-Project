@@ -1,3 +1,7 @@
+# Introduction
+
+The project is a simulation software written in **Python 3.12.0** that emulates the behavior of a computer system's main components, including the **processor**, **memory**, **keyboard**, and **screen** peripherals. It provides with the capability to write assembly-like instructions, manipulate data, perform arithmetic and logical operations, control program flow, and interact with peripheral devices through a graphical interface built using **tkinter**.
+
 # Terms definitions
 
 - `Register` = Small, fast storage locations directly within the CPU, used to hold temporary data that the processor needs during the execution of programs, such as operands for arithmetic operations, address pointers for accessing memory, or intermediate results and special states of the machine. These registers are much faster to access than main memory, which is why processors use them for immediate operations.
@@ -144,6 +148,8 @@ Represents the graphical user interface for simulating peripheral devices.
 
 ## Installation
 - Clone the repository: `git clone https://github.com/Vladimir-SS/CSS-Project.git`
+- Install Python 3.12.0 or higher. [Download Python](https://www.python.org/downloads/)
+- Install graphical user interface library `tkinter` (usually included in Python distributions). If not installed, run `pip install tk`.
 - Run the program: `python ./src/main.py`
 
 ## Usage
@@ -219,24 +225,32 @@ pytest --cov=src tests/ # to check coverage
 ```
 
 ### Coverage
-| Name                                        | Stmts | Miss | Cover |
-|---------------------------------------------|-------|------|-------|
-| src\GUI.py                                  | 68    | 53   | 22%   |
-| src\Keyboard.py                             | 12    | 1    | 92%   |
-| src\Memory.py                               | 89    | 10   | 89%   |
-| src\Processor.py                            | 329   | 76   | 77%   |
-| src\Screen.py                               | 4     | 0    | 100%  |
-| src\__init__.py                             | 0     | 0    | 100%  |
-| src\exceptions\DivisionByZeroException.py   | 3     | 0    | 100%  |
-| src\exceptions\MemoryOverflowError.py       | 3     | 0    | 100%  |
-| src\exceptions\__init__.py                  | 0     | 0    | 100%  |
-| src\tests\__init__.py                       | 0     | 0    | 100%  |
-| src\tests\test_gui.py                       | 44    | 16   | 64%   |
-| src\tests\test_keyboard.py                  | 15    | 1    | 93%   |
-| src\tests\test_memory.py                    | 75    | 5    | 93%   |
-| src\tests\test_processor.py                 | 290   | 2    | 99%   |
-| src\tests\test_screen.py                    | 9     | 1    | 89%   |
-| TOTAL                                       | 944   | 165  | 83%   |
+| Name                                              | Stmts | Miss | Branch | BrPart | Cover |
+|---------------------------------------------------|-------|------|--------|--------|-------|
+| src\GUI.py                                       | 68    | 53   | 16     | 0      | 18%   |
+| src\Keyboard.py                                  | 12    | 1    | 2      | 1      | 86%   |
+| src\Memory.py                                    | 89    | 10   | 30     | 8      | 83%   |
+| src\Processor.py                                 | 329   | 76   | 136    | 35     | 71%   |
+| src\Screen.py                                    | 4     | 0    | 0      | 0      | 100%  |
+| src\__init__.py                                  | 0     | 0    | 0      | 0      | 100%  |
+| src\exceptions\DivisionByZeroException.py        | 3     | 0    | 0      | 0      | 100%  |
+| src\exceptions\InvalidMemoryAddrError.py         | 3     | 0    | 0      | 0      | 100%  |
+| src\exceptions\MemoryOverflowError.py            | 3     | 0    | 0      | 0      | 100%  |
+| src\exceptions\__init__.py                       | 0     | 0    | 0      | 0      | 100%  |
+| src\tests\__init__.py                            | 0     | 0    | 0      | 0      | 100%  |
+| src\tests\test_gui.py                            | 44    | 16   | 8      | 2      | 65%   |
+| src\tests\test_keyboard.py                       | 15    | 1    | 2      | 1      | 88%   |
+| src\tests\test_memory.py                         | 75    | 5    | 28     | 3      | 88%   |
+| src\tests\test_processor.py                      | 290   | 2    | 24     | 1      | 99%   |
+| src\tests\test_screen.py                         | 9     | 1    | 2      | 1      | 82%   |
+| TOTAL                                             | 944   | 165  | 248    | 52     | 78%   |
+
+- **Name:** Python file name, including the relative path.
+- **Stmts:** Total executable statements (lines of code).
+- **Miss:** Number of statements not executed during tests.
+- **Branch:** Number of branch points (if-else conditions, loop exits).
+- **BrPart:** Number of partially tested branches (some paths not executed).
+- **Cover:** Percentage of executed statements out of total statements.
 
 # Assertions
 
@@ -255,12 +269,12 @@ pytest --cov=src tests/ # to check coverage
 
 
 - Berea Manuela-Mihaela
-  - Contribution: Memory
+  - **Contribution:** Processor - cmp, jumps, functions, and modified Memory to support labels
 - Neculea Gabriela
-  - Contribution: Processor
+  - **Contribution:** Memory, Keyboard and Processor mostly the data saving in memory
 - Popa Bianca-Ştefana
-  - Contribution: Processor
+  - **Contribution:** Processor - arithmetic, boolean operations and instruction parsing
 - Sbârcea Ștefan-Vladimir
-  - Contribution: GUI, Keyboard, Screen
+  - **Contribution:** GUI, Screen and modified Processor instruction execution to run synchronously with the GUI
 
 - **Note:** Each team member contributed to the documentation and the tests based on the classes they implemented.
